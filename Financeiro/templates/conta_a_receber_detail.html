@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ conta_a_receber.descricao }}</h2>
+  <p>Valor: R$ {{ conta_a_receber.valor }}</p>
+  <p>Data de Emissão: {{ conta_a_receber.data_emissao }}</p>
+  <p>Data de Vencimento: {{ conta_a_receber.data_vencimento }}</p>
+  <p>Data de Recebimento: {{ conta_a_receber.data_recebimento }}</p>
+  <p>Status de Recebimento: {{ conta_a_receber.status_recebimento }}</p>
+  <p>Categoria: {{ conta_a_receber.categorias }}</p>
+  <p>Observações: {{ conta_a_receber.observacoes }}</p>
+  <p>Usuário: {{ conta_a_receber.usuario }}</p>
+  <p>Forma de Recebimento: {{ conta_a_receber.forma_recebimento }}</p>
+  <br>
+    <a href="{% url 'conta_a_receber_list' %}" class="btn btn-secondary mt-2 float-end">
+        <i class="bi bi-arrow-left"></i> Voltar à Lista
+    </a>
+</div>
+<br>
+<br>
+{% endblock %}

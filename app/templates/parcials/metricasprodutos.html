@@ -1,0 +1,246 @@
+{% load app_filters %}
+<style>
+
+    h2{
+        font-size:40px;
+        color: rgb(248, 232, 212);
+    }
+    .chart-card {
+        border-radius: 0.375rem;
+        overflow: hidden;
+    }
+    .chart-card .card-body {
+        padding: 0;
+    }
+    .chart-card .card-header {
+        padding: 1rem;
+        text-align: center;
+    }
+    .chart-card canvas {
+        height: 500px;
+    }
+</style>
+
+<h2 class="text-center mb-4">Dashboards Overview</h2>
+
+<div class="container">
+    <div class="row">
+        <!-- Card 1 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Quantidade de Produtos Distintos</h5>
+                    <p class="card-text small">{{produtos_metricas.total_produtos}}</p>
+
+                </div>  
+            </div>
+        </div>
+        
+        <!-- Card 2 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-secondary text-light" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Saldo  em Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_saldo_produtos}} </p>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 3 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-info text-light" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Valor de Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.valor_estoque|currency_reais }}</p>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 4 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Quantidade de Movimentações</h5>
+                    <p class="card-text small">{{produtos_metricas.total_movimentacoes}} </p>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 5 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-secondary text-light" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Entradas de Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_quantidade_entradas}} </p>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 6 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-info text-light" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Saídas de Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_quantidade_saidas}} </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+   <!--  Cards para graficos -->
+   <div class="row mt-4">
+    <!-- Card 7: Gráfico de Produtos -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-light text-dark" style="border-radius: 0.375rem;">
+            <div class="card-header">
+                <h5 class="card-title h6">Produtos Ativos x Produtos Inativos</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="produtosChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 8: Gráfico de Entradas e Saídas -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-secondary text-light" style="border-radius: 0.375rem;">
+            <div class="card-header">
+                <h5 class="card-title h6">Entradas vs Saídas</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="entradasSaidasChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 9: Gráfico de Valor de Estoque -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-info text-light" style="border-radius: 0.375rem;">
+            <div class="card-header">
+                <h5 class="card-title h6">Valor Total do Estoque</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="valorEstoqueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Chart.js script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuração padrão para os gráficos
+    const config = {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '',
+                data: [],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#444',
+                    display: true,
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => value.toLocaleString() 
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 10
+                    }
+                }
+            }
+        }
+    };
+
+    // Função para criar gráficos com configuração personalizada
+    function createChart(ctx, type, labels, data, label, colors) {
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: colors.background,
+                    borderColor: colors.border,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...config.options,
+                type: type
+            }
+        });
+    }
+
+    // Gráfico de Produtos
+    var ctxProdutos = document.getElementById('produtosChart').getContext('2d');
+    createChart(ctxProdutos, 'bar', 
+        ['Quantidade de Produtos'],
+        [{{ produtos_metricas.total_produtos }}],
+        'Quantidade de Produtos',
+        {
+            background: ['#112545'],
+            border: ['rgba(54, 162, 235, 1)']
+        }
+    );
+
+    // Gráfico de Entradas e Saídas
+    var ctxEntradasSaidas = document.getElementById('entradasSaidasChart').getContext('2d');
+    createChart(ctxEntradasSaidas, 'bar', 
+        ['Entradas', 'Saídas'],
+        [{{ produtos_metricas.total_quantidade_entradas }}, {{ produtos_metricas.total_quantidade_saidas }}],
+        'Quantidade',
+        {
+            background: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+            color: ['#ffffff'],
+            border: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)']
+        }
+    );
+
+    // Gráfico de Valor de Estoque
+    var ctxValorEstoque = document.getElementById('valorEstoqueChart').getContext('2d');
+    createChart(ctxValorEstoque, 'bar', 
+        ['Valor Total do Estoque'],
+        [{{ produtos_metricas.valor_estoque }}],
+        'Valor de Estoque',
+        {
+            background: ['rgba(153, 102, 255, 0.2)'],
+            border: ['rgba(153, 102, 255, 1)']
+        }
+    );
+});
+</script>

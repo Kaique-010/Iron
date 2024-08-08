@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load produto_filters %}
+
+{% block title %}
+Lista de Produtos
+{% endblock %}
+
+{% block content %}
+
+<br>
+<br>
+
+<div class="container-fluid"></div>
+<center><h3>Lista de Produtos</h3> </center>
+<!-- Botão de Novo Produto -->
+<div class="container-fluid"></div>
+<div class="col md-4">
+    <div class="row mb-4"></div>
+    <a href="{% url 'produtoscriar' %}" class="btn btn-success float-end">
+        <i class="bi bi-plus"></i> Novo Produto
+    </a>
+</div>
+<!-- Formulário de Pesquisa -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <form method="get" action="{% url 'produtoslistas' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="nome" placeholder="Produto Nome" value="{{ request.GET.nome }}">
+                <button class="btn btn-primary" type="submit">Pesquisar
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+ <!-- Tabela de Produtos -->
+ <div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Saldo</th>
+                <th>Preço a Vista</th>
+                <th>Preço a Prazo</th>
+                <th>Imagem Produto</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos %}
+            <tr>
+                <td>{{ produto.id }}</td>
+                <td>{{ produto.nome }}</td>
+                <td>{{ produto.quantidade }}</td>
+                <td>
+                    {% if produto.precos.exists %}
+                        {{ produto.precos.first.preco_venda_vista|currency_reais }}
+                    {% else %}
+                        Nenhum Preço
+                    {% endif %}
+                </td>
+                <td>
+                    {% if produto.precos.exists %}
+                        {{ produto.precos.first.preco_venda_prazo|currency_reais }}
+                    {% else %}
+                        Nenhum Preço
+                    {% endif %}
+                </td>               
+                <td>
+                    {% if produto.imagem %}
+                        <center><img src="{{ produto.imagem.url }}" alt="Foto de {{ produto.nome }}" style="width: 70px; height: auto;"></center>
+                    {% else %}
+                        Nenhuma foto
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'produtosdetalhe' produto.id %}" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'produtoseditar' produto.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'produtosexcluir' produto.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">Nenhum produto encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="" style="color: white;"><strong>Totais:</strong></td>
+                <td style="color: white;"><strong>{{ contagem_produtos }}</strong></td>
+                <td style="color: white;"><strong>{{ total_saldo }}</strong></td>
+                <td style="color: white;"><strong>{{ total_preco_vista|currency_reais }}</strong></td>
+                <td style="color: white;"><strong>{{ total_preco_prazo|currency_reais }}</strong></td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% include 'parcials/pagination.html' %}
+
+{% endblock %}

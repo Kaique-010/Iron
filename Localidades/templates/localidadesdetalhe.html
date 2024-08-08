@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Detalhe de localidades
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 class="display-8">Detalhes da localidade</h3>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">{{ object.nome }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ object.descricao }}</p>
+        </div>
+    </div>
+<br>
+<a href="{% url 'localidadeslistas' %}" class="btn btn-secondary mt2 float-end"><i class="bi bi-arrow-left"></i> Voltar à Lista
+</a>
+
+
+</div>
+<br>
+<br>
+<br>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}
+Excluir Contas a Pagar
+{% endblock %}
+
+{% block content %}
+  <h2>Excluir Conta a Pagar</h2>
+  <p>Tem certeza de que deseja excluir {{ object.descricao }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Confirmar Exclusão</button>
+  </form>
+  <a href="{% url 'conta_a_pagar_list' %}">Cancelar</a>
+{% endblock %}

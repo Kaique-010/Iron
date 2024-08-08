@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Editar Marcas
+{% endblock %}
+
+{% block content %}
+
+<div class="container-mt-4">
+    <h3 class="display-8"> Excluir Marca</h3>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">Tem Certeza Que Deseja Excluir a Marca <strong>{{ object.nome }}</strong></p>
+            <form method="post" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-danger mt-3"> Excluir Marca </button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'marcaslistas'%}" class="btn btn-secondary mt2">Voltar Para Marcas</a>
+</div>  
+
+{% endblock %}

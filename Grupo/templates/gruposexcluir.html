@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Excluir Grupos
+{% endblock %}
+
+{% block content %}
+
+<div class="container-mt-4">
+    <h3 class="display-8"> Excluir Grupo</h3>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">Tem Certeza Que Deseja Excluir o grupo <strong>{{ object.nome }}</strong></p>
+            <form method="post" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-danger mt-3"> Excluir Grupo </button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'gruposlistas'%}" class="btn btn-secondary mt2">Voltar Para Grupos</a>
+</div>  
+
+{% endblock %}

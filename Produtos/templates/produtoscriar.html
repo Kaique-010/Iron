@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastrar Produtos
+{% endblock %}
+<br>
+<br>
+{% block content %}
+<br>
+<br>
+
+<div class="container-mt-4">
+    <h3 class="display-8"> Cadastrar Produtos</h3>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary"> Salvar Produto</button>
+            </form>
+        </div>  
+    </div>  
+    <br>
+    <a href="{% url 'produtoslistas'%}" class="btn btn-secondary mt2">Voltar Para Lista de Produtos</a>
+</div>  
+
+{% endblock %}
