@@ -5,8 +5,8 @@
   <div class="row mb-4">
       <div class="col-md-12">
           <h3 class="display-8">Detalhes:</h3>
-      </div>
-  </div>
+          <div class="card">
+   
   <h5>{{ conta_a_pagar.descricao }}</h2>
   <p class="card-text">Valor: R$ {{ conta_a_pagar.valor }}</p>
   <p class="card-text">Data de Emissão: {{ conta_a_pagar.data_emissao }}</p>
@@ -17,6 +17,8 @@
   <p class="card-text">Observações: {{ conta_a_pagar.observacoes }}</p>
   <p class="card-text">Responsável: {{ conta_a_pagar.usuario }}</p>
   <p class="card-text">Forma de Pagamento: {{ conta_a_pagar.forma_pagamento }}</p>
+  <br>
+  </div>
   <br>
     <a href="{% url 'conta_a_pagar_list' %}" class="btn btn-secondary mt-2 float-end">
         <i class="bi bi-arrow-left"></i> Voltar à Lista
