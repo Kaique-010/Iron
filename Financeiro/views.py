@@ -152,3 +152,35 @@ def fluxo_caixa(request):
     }
 
     return render(request, 'fluxo_caixa.html', context)
+
+
+def contas_a_receber(request):
+    filter_params = {}
+    status = request.GET.get('status')
+    if status:
+        filter_params['status_recebimento'] = status
+    
+    
+    contas = ContaAReceber.objects.filter(**filter_params)
+
+    sort_by = request.GET.get('sort_by', 'data_emissao') 
+    contas = contas.order_by(sort_by)
+    print(f"Ordenando por: {sort_by}")
+
+    return render(request, 'conta_a_receber_list', {'contas': contas})
+
+
+
+def contas_a_pagar(request):
+    filter_params = {}
+    
+    status = request.GET.get('status')
+    if status:
+        filter_params['status_pagamento'] = status
+
+    contas = ContaAPagar.objects.filter(**filter_params)
+    sort_by = request.GET.get('sort_by', 'data_emissao')
+    contas = contas.order_by(sort_by)
+    print(f"Ordenando por: {sort_by}")
+
+    return render(request, 'conta_a_pagar_list', {'contas': contas})
