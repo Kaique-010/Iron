@@ -35,7 +35,7 @@ Contas a receber
 
     </div>
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <form method="get" action="{% url 'conta_a_receber_list' %}">
                 <div class="input-group">
                     <input type="text" class="form-control" name="descricao" placeholder="Descrição"
@@ -53,12 +53,12 @@ Contas a receber
         <table class="table table-striped table-dark table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Data Emissão</th>
-                    <th>Data Vencimento</th>
-                    <th>Status Recebimento</th>
+                    <th><a href="?sort_by=conta.id" class="text-light">ID</a></th>
+                    <th><a href="?sort_by=descricao" class="text-light">Descrição</a></th>
+                    <th><a href="?sort_by=valor" class="text-light">Valor</a></th>
+                    <th><a href="?sort_by=data_emissao" class="text-light">Data Emissão</a></th>
+                    <th><a href="?sort_by=data_vencimento" class="text-light">Data Vencimento</a></th>
+                    <th><a href="?sort_by=status_recebimento" class="text-light">Status Recebimento</a></th>
                     <th>Ações</th>
                 </tr>
             </thead>

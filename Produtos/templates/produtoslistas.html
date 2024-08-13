@@ -13,7 +13,11 @@ Lista de Produtos
 </style>
 <br>
 <br>
-
+<style>
+    h3{
+        color: antiquewhite;
+    }
+</style>
 <div class="container-fluid"></div>
 <div class="card" style="background-color: rgb(28, 33, 35);">
 <center><h3>Lista de Produtos</h3> <i class="bi bi-box" style="font-size: 2rem;"></i></i></center>
@@ -31,7 +35,7 @@ Lista de Produtos
     <div class="col-md-4">
         <form method="get" action="{% url 'produtoslistas' %}">
             <div class="input-group">
-                <input type="text" class="form-control" name="nome" placeholder="Produto Nome" value="{{ request.GET.nome }}">
+                <input type="text" class="form-control" name="nome" placeholder="Produto" value="{{ request.GET.nome }}">
                 <button class="btn btn-primary" type="submit">Pesquisar
                     <i class="bi bi-search"></i>
                 </button>
