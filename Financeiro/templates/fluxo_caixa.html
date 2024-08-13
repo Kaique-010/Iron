@@ -1,10 +1,22 @@
 {% extends "base.html" %}
+{% block title %}
+Fluxo de Caixa
+{% endblock %}
 
 {% block content %}
+<style>
+
+    h3{
+        color: rgb(225, 211, 193);
+    }
+    .bi-eye{
+        color: rgb(222, 223, 187);
+    }
+</style>
 
 <div class="container-fluid mt-4">
     <div class="card">
-        <h3 class="text-center mb-4">Fluxo de Caixa</h3>
+        <center><h3 class="text-center mb-4">Fluxo de Caixa</h3><i class="bi bi-calculator" style="font-size: 2rem; color: #ccc6b0;"></i></center>
     </div>
     <div class="card p-4 shadow-sm">
         <form method="get" class="mb-4">
@@ -40,11 +52,11 @@
                     <td>{{ saldo_inicial }}</td>
                 </tr>
                 <tr>
-                    <th>Total de Entradas</th>
+                    <th>Total de Entradas <a href="{% url 'conta_a_receber_list' %}" title="Ver lista completa de entradas"><i class="bi bi-eye"></i></a></th>
                     <td>{{ entradas }}</td>
                 </tr>
                 <tr>
-                    <th>Total de Saídas</th>
+                    <th>Total de Saidas <a href="{% url 'conta_a_pagar_list' %}" title="Ver lista completa de entradas"><i class="bi bi-eye"></i></a></th>
                     <td>{{ saidas }}</td>
                 </tr>
                 <tr>

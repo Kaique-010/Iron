@@ -1,23 +1,27 @@
 {% extends 'base.html' %}
-
+{% block title %}
+Detalhes
+{% endblock %}
 {% block content %}
 <div class="container mt-4">
-  <div class="row mb-4">
-      <div class="col-md-12">
-          <h3 class="display-8">Detalhes:</h3>
-      </div>
-  </div>
-  <h5>{{ conta_a_pagar.descricao }}</h2>
-  <p class="card-text">Valor: R$ {{ conta_a_pagar.valor }}</p>
-  <p class="card-text">Data de Emissão: {{ conta_a_pagar.data_emissao }}</p>
-  <p class="card-text">Data de Vencimento: {{ conta_a_pagar.data_vencimento }}</p>
-  <p class="card-text">Data de Pagamento: {{ conta_a_pagar.data_pagamento }}</p>
-  <p class="card-text">Status de Pagamento: {{ conta_a_pagar.status_pagamento }}</p>
-  <p class="card-text">Categoria: {{ conta_a_pagar.categorias }}</p>
-  <p class="card-text">Observações: {{ conta_a_pagar.observacoes }}</p>
-  <p class="card-text">Responsável: {{ conta_a_pagar.usuario }}</p>
-  <p class="card-text">Forma de Pagamento: {{ conta_a_pagar.forma_pagamento }}</p>
-  <br>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 class="display-8">Detalhes:</h3>
+        </div>
+    </div>
+    <div class="card">
+        <h2>{{ conta_a_pagar.descricao }}</h2>
+            <p class="card-text">Valor: R$ {{ conta_a_pagar.valor }}</p>
+            <p class="card-text">Data de Emissão: {{ conta_a_pagar.data_emissao }}</p>
+            <p class="card-text">Data de Vencimento: {{ conta_a_pagar.data_vencimento }}</p>
+            <p class="card-text">Data de Pagamento: {{ conta_a_pagar.data_pagamento }}</p>
+            <p class="card-text">Status de Pagamento: {{ conta_a_pagar.status_pagamento }}</p>
+            <p class="card-text">Categoria: {{ conta_a_pagar.categorias }}</p>
+            <p class="card-text">Observações: {{ conta_a_pagar.observacoes }}</p>
+            <p class="card-text">Responsável: {{ conta_a_pagar.usuario }}</p>
+            <p class="card-text">Forma de Pagamento: {{ conta_a_pagar.forma_pagamento }}</p>
+    </div>
+    <br>
     <a href="{% url 'conta_a_pagar_list' %}" class="btn btn-secondary mt-2 float-end">
         <i class="bi bi-arrow-left"></i> Voltar à Lista
     </a>

@@ -1,5 +1,5 @@
 <!-- templates/seu_app/partials/sidebarr.html -->
-
+{%load static%}
 <style>
 
     .nav-link{
@@ -50,7 +50,7 @@
     <div class="container-fluid">
         <!-- Logo -->
         <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="" style="height: 40px;">
+            <img src="{% static 'logo.jpg' %}" style="height: 40px;">
             Iron Sistemas Inteligentes
         </a>
         <!-- Toggler Button -->
