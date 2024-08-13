@@ -6,7 +6,11 @@ Lista de Produtos
 {% endblock %}
 
 {% block content %}
-
+<style>
+    h3{
+        color: rgb(225, 211, 193);
+    }
+</style>
 <br>
 <br>
 <style>
@@ -15,9 +19,7 @@ Lista de Produtos
     }
 </style>
 <div class="container-fluid"></div>
-<div class="card">
-<center><h3>Lista de Produtos</h3><i class="bi bi-box-seam fs-2"></i> </center>
-</div>
+<center><h3>Lista de Produtos</h3> </center>
 <!-- Botão de Novo Produto -->
 <div class="container-fluid"></div>
 <div class="col md-4">
@@ -76,7 +78,7 @@ Lista de Produtos
                 </td>               
                 <td>
                     {% if produto.imagem %}
-                        <center><img src="{{ produto.imagem.url }}" alt="Foto de {{ produto.nome }}" style="width: 70px; height: auto;"></center>
+                    <img src="{{ produto.imagem.url }}" class="rounded mx-auto d-block" alt="Foto de {{ produto.nome }}" style="width: 75px; height: auto;"> 
                     {% else %}
                         Nenhuma foto
                     {% endif %}
