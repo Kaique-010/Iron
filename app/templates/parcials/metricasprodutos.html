@@ -17,9 +17,10 @@
     .chart-card .card-header {
         padding: 1rem;
         text-align: center;
+        font-size: large;
     }
     .chart-card canvas {
-        height: 500px;
+        height: 250px;
     }
     .bi-graph-up{
         color: blanchedalmond;
@@ -32,7 +33,7 @@
     <div class="row">
         <!-- Card 1 -->
         <div class="col-12 col-sm-6 col-md-4 mb-3">
-            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem; font-weight: bold;">
+            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;">
                 <div class="card-body p-3">
                     <h5 class="card-title h6">Quantidade de Produtos Distintos</h5>
                     <p class="card-text small">{{produtos_metricas.total_produtos}}</p>
@@ -57,7 +58,7 @@
             <div class="card text-center bg-info text-light" style="border-radius: 0.375rem; font-weight: bold;">
                 <div class="card-body p-3">
                     <h5 class="card-title h6">Valor de Estoque</h5>
-                    <p class="card-text small">{{produtos_metricas.valor_estoque|currency_reais }}</p>
+                    <p class="card-text small"> {{produtos_metricas.valor_estoque|currency_reais}}</p>
 
                 </div>
             </div>
@@ -68,7 +69,7 @@
             <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;font-weight: bold;">
                 <div class="card-body p-3">
                     <h5 class="card-title h6">Quantidade de Movimentações</h5>
-                    <p class="card-text small">{{produtos_metricas.total_movimentacoes}} </p>
+                    <p class="card-text small text-dark">{{produtos_metricas.total_movimentacoes}} </p>
 
                 </div>
             </div>
@@ -219,7 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'Quantidade de Produtos',
         {
             background: ['#112545'],
-            border: ['rgba(54, 162, 235, 1)']
+            border: ['rgba(54, 162, 235, 1)'],
+            
         }
     );
 

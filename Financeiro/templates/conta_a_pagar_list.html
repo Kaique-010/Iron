@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% load custom_filters %}
 
@@ -11,11 +10,7 @@ Contas a Pagar
 <br>
 <style>
 .bi-graph-down-arrow{
-    color:rgb(196, 85, 85);
-    }
-
-    h3{
-        color: rgb(225, 211, 193);
+        color:aliceblue;
     }
 
 </style>
@@ -23,9 +18,8 @@ Contas a Pagar
 
 
 <div class="container-fluid">
-    <div class="card" style="background-color: rgb(28, 33, 35);">
-    <center><h3>Contas a Pagar</h3><i class="bi bi-graph-down-arrow" style="font-size: 2rem;"></i></i></center>
-    </div>
+    <center><h3>Contas a Pagar</h3><i class="bi bi-graph-down-arrow"></i></center>
+  
     <div class="container-fluid"></div>
     <div class="col md-4">
         <div class="row mb-4"></div>
@@ -35,10 +29,16 @@ Contas a Pagar
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <form method="get" action="{% url 'conta_a_pagar_list' %}">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="descricao" placeholder="Descrição" value="{{ request.GET.descricao }}">
+                    <input type="text" class="form-control" name="descricao" placeholder="Descrição"
+                        value="{{ request.GET.descricao }}">
+                    <select class="form-select" name="status">
+                        <option value="">Status</option>
+                        <option value="True" {% if request.GET.status == 'True' %}selected{% endif %}>Pago</option>
+                        <option value="False" {% if request.GET.status == 'False' %}selected{% endif %}>Pendente</option>
+                    </select>
                     <button class="btn btn-primary" type="submit">Pesquisar
                         <i class="bi bi-search"></i>
                     </button>
@@ -51,14 +51,14 @@ Contas a Pagar
         <table class="table table-striped table-dark table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Emissão</th>
-                    <th>Vencimento</th>
-                    <th>Status</th>
+                    <th><a href="?sort_by=contas.id" class="text-light">ID</a></th>
+                    <th><a href="?sort_by=contas.descricao" class="text-light">Descrição</a></th>
+                    <th><a href="?sort_by=contas.valor" class="text-light">Valor</a></th>
+                    <th><a href="?sort_by=contas.data_emissao" class="text-light">Emissão</a></th>
+                    <th><a href="?sort_by=contas.data_vencimento" class="text-light">Vencimento</a></th>
+                    <th><a href="?sort_by=status_recebimento" class="text-light">Status</a></th>
                     <th>Ações</th>
-                </tr>
+                <tr>
             </thead>
             <tbody>
                 {% for conta in contas_a_pagar %}
@@ -70,9 +70,9 @@ Contas a Pagar
                     <td>{{ conta.data_vencimento }}</td>
                     <td>
                         {% if conta.status_pagamento %}
-                            Pago
+                        Pago
                         {% else %}
-                            Pendente
+                        Pendente
                         {% endif %}
                     </td>
                     <td>
@@ -105,8 +105,7 @@ Contas a Pagar
             </tfoot>
         </table>
     </div>
-    
+
     {% include 'parcials/pagination.html' %}
-    
+
     {% endblock %}
-    
