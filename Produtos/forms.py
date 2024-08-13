@@ -26,3 +26,5 @@ class Produtos(forms.ModelForm):
     def clean_descricao(self):
         data = self.cleaned_data.get('descricao')
         return data.upper() if data else data
+    
+

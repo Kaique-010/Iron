@@ -11,9 +11,9 @@ class ContaAPagarForm(forms.ModelForm):
             'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição'}),
             'parcela': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Parcelas'}),
             'valor': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Valor'}),
-            'data_emissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'data_vencimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'data_pagamento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_emissao': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
+            'data_vencimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
+            'data_pagamento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
             'pessoas': forms.Select(attrs={'class': 'form-control'}),
             'categorias': forms.Select(attrs={'class': 'form-control'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Observações','rows': 3}),
@@ -30,9 +30,9 @@ class ContaAReceberForm(forms.ModelForm):
             'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição'}),
             'parcela': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Parcelas'}),
             'valor': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Valor'}),
-            'data_emissao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'data_vencimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'data_recebimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_emissao': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
+            'data_vencimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
+            'data_recebimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
             'pessoas': forms.Select(attrs={'class': 'form-control'}),
             'categorias': forms.Select(attrs={'class': 'form-control'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Observações'}),
@@ -42,3 +42,8 @@ class ContaAReceberForm(forms.ModelForm):
 class DateRangeForm(forms.Form):
     start_date = forms.DateField(label='Data Inicial', widget=forms.DateInput(attrs={'type': 'date'}))
     end_date = forms.DateField(label='Data Final', widget=forms.DateInput(attrs={'type': 'date'}))
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].input_formats = ['%Y-%m-%d']
+        self.fields['end_date'].input_formats = ['%Y-%m-%d']

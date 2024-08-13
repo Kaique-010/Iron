@@ -7,7 +7,6 @@ from django.db.models import Sum
 from datetime import date, timedelta
 
 
-# Views para ContaAPagar
 class ContaAPagarListView(ListView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_list.html'
