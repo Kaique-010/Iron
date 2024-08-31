@@ -10,6 +10,12 @@ def home(request):
     
     # Calcular o total de produtos
     total_produtos = Produtos.objects.count()
+
+    # Calcular o total de produtos ativos
+    total_produtos_ativos = Produtos.objects.filter(ativo=True).count()
+
+    # Calcular o total de produtos inativos
+    total_produtos_inativos = Produtos.objects.filter(ativo=False).count()
     
     # Calcular o saldo total de produtos
     total_saldo_produtos = Produtos.objects.aggregate(total_quantidade=models.Sum('quantidade'))['total_quantidade'] or 0
@@ -32,6 +38,8 @@ def home(request):
 
     produtos_metricas = {
         'total_produtos': total_produtos,
+        'total_produtos_ativos': total_produtos_ativos,
+        'total_produtos_inativos': total_produtos_inativos,
         'total_saldo_produtos': total_saldo_produtos,
         'valor_estoque': valor_estoque,
         'total_entradas': total_entradas,

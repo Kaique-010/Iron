@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'Saidas_Produtos',
     'Financeiro',
     'Agenda',
+    'Pedidos',
 
 ]
 

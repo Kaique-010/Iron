@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Editar Pedido
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3 class="display-8">Editar Pedido</h3>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <h4 class="mt-4">Itens do Pedido</h4>
+                {{ formset.management_form }}
+                <div id="item_formset">
+                    {% for form in formset %}
+                        <div class="form-row">
+                            {{ form.as_p }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Edição</button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'pedidoslistas' %}" class="btn btn-secondary mt-2">Voltar Para Pedidos</a>
+</div>  
+
+{% endblock %}

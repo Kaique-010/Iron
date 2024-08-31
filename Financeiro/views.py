@@ -1,3 +1,4 @@
+from django.db import connection
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import ContaAPagar, ContaAReceber
@@ -115,27 +116,21 @@ def fluxo_caixa(request):
     # Período padrão (últimos 30 dias)
     start_date = date.today() - timedelta(days=30)
     end_date = date.today()
-
-    # Verificar se o formulário foi enviado
+    
     if request.method == 'GET':
         form = DateRangeForm(request.GET)
         if form.is_valid():
             start_date = form.cleaned_data.get('start_date')
             end_date = form.cleaned_data.get('end_date')
-
     else:
         form = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
 
     # Filtrar contas a receber e a pagar no período
     entradas = ContaAReceber.objects.filter(
-        data_recebimento__range=[start_date, end_date],
-        status_recebimento=True
+        data_recebimento__range=[start_date, end_date]
     ).aggregate(total_entradas=Sum('valor'))['total_entradas'] or 0
 
-    saidas = ContaAPagar.objects.filter(
-        data_pagamento__range=[start_date, end_date],
-        status_pagamento=True
-    ).aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
+    saidas = ContaAPagar.objects.aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
 
     saldo_inicial = 0  # Ajuste conforme necessário
     saldo_final = saldo_inicial + entradas - saidas
@@ -153,33 +148,42 @@ def fluxo_caixa(request):
     return render(request, 'fluxo_caixa.html', context)
 
 
-def contas_a_receber(request):
-    filter_params = {}
-    status = request.GET.get('status')
-    if status:
-        filter_params['status_recebimento'] = status
-    
-    
-    contas = ContaAReceber.objects.filter(**filter_params)
 
-    sort_by = request.GET.get('sort_by', 'data_emissao') 
-    contas = contas.order_by(sort_by)
-    print(f"Ordenando por: {sort_by}")
+def dash(request):
+    start_date = date.today() - timedelta(days=30)
+    end_date = date.today()
 
-    return render(request, 'conta_a_receber_list', {'contas': contas})
+    # Verifica se o formulário foi enviado e se as datas são válidas
+    if request.method == 'GET' and 'start_date' in request.GET and 'end_date' in request.GET:
+        form = DateRangeForm(request.GET)
+        if form.is_valid():
+            start_date = form.cleaned_data.get('start_date')
+            end_date = form.cleaned_data.get('end_date')
+    else:
+        form = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
 
+    # Calcula o total de entradas
+    entradas = ContaAReceber.objects.aggregate(total=Sum('valor'))['total'] or 0
 
+    # Calcula o total de saídas
+    saidas = ContaAPagar.objects.aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
 
-def contas_a_pagar(request):
-    filter_params = {}
-    
-    status = request.GET.get('status')
-    if status:
-        filter_params['status_pagamento'] = status
+    saldo_inicial = 1  
 
-    contas = ContaAPagar.objects.filter(**filter_params)
-    sort_by = request.GET.get('sort_by', 'data_emissao')
-    contas = contas.order_by(sort_by)
-    print(f"Ordenando por: {sort_by}")
+       
+    saldo = entradas - saidas
 
-    return render(request, 'conta_a_pagar_list', {'contas': contas})
+    context = {
+        'form': form,
+        'financeiro_dash': {
+            'saldo_inicial': saldo_inicial,
+            'entradas': entradas,
+            'saidas': saidas,
+            'saldo': saldo,
+            'start_date': start_date,
+            'end_date': end_date,
+            
+        }
+    }
+
+    return render(request, 'dash.html', context)

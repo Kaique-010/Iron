@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+
+{% block title %}
+Novo Pedido
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    h4 {
+        text-align: center;
+    }
+
+    .item-row {
+        margin-bottom: 10px;
+    }
+
+    .item-row button {
+        margin-top: 5px;
+    }
+
+    .form-control {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
+    }
+    .card{
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid; 
+        background:linear-gradient(#0f0f0f, #53524f)
+    }
+</style>
+<br>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Pedido de venda  <i class="bi bi-cart-plus" style="font-size: 2rem;"></i></h3>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <br>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_status" class="form-label">Status:</label>
+                        {{ form.status|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="id_cliente" class="form-label">Cliente:</label>
+                        {{ form.cliente|add_class:"form-control" }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_data" class="form-label">Data do Pedido:</label>
+                        {{ form.data|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Itens do Pedido</h4>
+                {{ formset.management_form }}
+                <div id="item_formset">
+                    {% for form in formset %}
+                    <div class="item-row row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Produto:</label>
+                            {{ form.produto|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantidade:</label>
+                            {{ form.quantidade|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Preço Unitário:</label>
+                            {{ form.preco_unitario|add_class:"form-control" }}
+                        </div>
+                        {% if form.instance.pk %}
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remover</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-success" onclick="addItem()">Adicionar Novo Item</button>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="id_observacoes" class="form-label">Observações:</label>
+                        {{ form.observacoes|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Salvar Pedido</button>
+            </form>
+        </div>
+        <a href="{% url 'pedidoslistas' %}" class="btn btn-secondary mt-3">Voltar Para Pedidos</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verifique se produtosJson está sendo passado corretamente
+        var produtosJson = '{{ produtos_json|escapejs }}';
+        var produtos = [];
+
+        if (produtosJson.trim() !== '') {
+            try {
+                produtos = JSON.parse(produtosJson);
+                console.log(produtos); // Verifica o conteúdo de produtos no console
+            } catch (e) {
+                console.error('Erro ao analisar JSON:', e);
+            }
+        } else {
+            console.warn('Nenhum produto disponível.');
+        }
+
+        // Código para adicionar itens
+        window.addItem = function() {
+            var formset = document.getElementById('item_formset');
+            var totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+
+            if (!totalFormsInput) {
+                console.error('Campo TOTAL_FORMS não encontrado.');
+                return;
+            }
+
+            var totalForms = totalFormsInput.value;
+            var newFormIndex = parseInt(totalForms);
+
+            var optionsHtml = produtos.map(function(produto) {
+                return `<option value="${produto.pk}">${produto.fields.nome}</option>`;
+            }).join('');
+
+            var newFormHtml = `
+                <div class="item-row row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Produto:</label>
+                        <select name="form-${newFormIndex}-produto" class="form-control">
+                            <option value="" selected="">---------</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Quantidade:</label>
+                        <input type="number" name="form-${newFormIndex}-quantidade" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Preço Unitário:</label>
+                        <input type="number" name="form-${newFormIndex}-preco_unitario" step="0.01" class="form-control" />
+                    </div>
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remover</button>
+                    </div>
+                </div>
+            `;
+
+            formset.insertAdjacentHTML('beforeend', newFormHtml);
+
+            totalFormsInput.value = newFormIndex + 1;
+        }
+
+        window.removeItem = function(button) {
+            var row = button.closest('.item-row');
+            row.remove();
+
+            var totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+            
+            if (!totalFormsInput) {
+                console.error('Campo TOTAL_FORMS não encontrado.');
+                return;
+            }
+
+            totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+        }
+    });
+</script>
+
+{% endblock %}

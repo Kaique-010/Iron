@@ -99,6 +99,18 @@
                         </ul>
                     </li>
 
+                     <!-- Menu de Pedidos -->
+                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Pedidos
+                            <i class="bi bi-cart-plus" style="font-size: 2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'pedidoslistas' %}">Pedidos de Venda</a></li>
+                        </ul>
+                    </li>
+
                     <!-- Menu de Pessoas -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -139,7 +151,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="{% url 'home' %}">Extratos</a></li>
-                            <li><a class="dropdown-item" href="#">Financeiro</a></li>
+                            <li><a class="dropdown-item" href="/fluxo_caixa/dash">Financeiro</a></li>
                         </ul>
                     </li>
                 </ul>

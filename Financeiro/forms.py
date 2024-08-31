@@ -46,4 +46,4 @@ class DateRangeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['start_date'].input_formats = ['%Y-%m-%d']
-        self.fields['end_date'].input_formats = ['%Y-%m-%d']
+        self.fields['end_date'].input_formats = ['%Y-%m-%d']    
