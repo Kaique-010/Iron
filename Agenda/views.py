@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import generics
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -56,3 +57,16 @@ def listar_eventos(request):
         'now': now.isoformat(),  
     }
     return render(request, 'listar_eventos.html', context)
+
+def eventos_futuros_json(request):
+    agora = timezone.now()
+    proximos_eventos = models.Evento.objects.filter(
+        data_inicio__gte=agora,
+        data_inicio__lte=agora + timedelta(minutes=6000) 
+    ).order_by('data_inicio')
+    
+    eventos = list(proximos_eventos.values(
+        'titulo', 'data_inicio', 'horario', 'local', 'descricao'
+    ))
+    
+    return JsonResponse({'eventos': eventos})

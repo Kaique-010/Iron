@@ -127,10 +127,12 @@ def fluxo_caixa(request):
 
     # Filtrar contas a receber e a pagar no período
     entradas = ContaAReceber.objects.filter(
-        data_recebimento__range=[start_date, end_date]
+        data_vencimento__range=[start_date, end_date]
     ).aggregate(total_entradas=Sum('valor'))['total_entradas'] or 0
 
-    saidas = ContaAPagar.objects.aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
+    saidas = ContaAPagar.objects.filter(
+        data_vencimento__range=[start_date, end_date]
+    ).aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
 
     saldo_inicial = 0  # Ajuste conforme necessário
     saldo_final = saldo_inicial + entradas - saidas
@@ -163,10 +165,14 @@ def dash(request):
         form = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
 
     # Calcula o total de entradas
-    entradas = ContaAReceber.objects.aggregate(total=Sum('valor'))['total'] or 0
+    entradas = ContaAReceber.objects.filter(
+        data_vencimento__range=[start_date, end_date]
+    ).aggregate(total_entradas=Sum('valor'))['total_entradas'] or 0
 
     # Calcula o total de saídas
-    saidas = ContaAPagar.objects.aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
+    saidas = ContaAPagar.objects.filter(
+        data_vencimento__range=[start_date, end_date]
+    ).aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
 
     saldo_inicial = 1  
 

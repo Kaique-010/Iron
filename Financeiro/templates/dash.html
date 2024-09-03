@@ -31,7 +31,16 @@
         border-width: 2px;
         border-color: #5d88b6; /* Cor da borda */
         border-style: solid;
-        
+    }
+    .bi-graph-up {
+        color: aqua;
+    }
+    .bi-graph-down {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-currency-exchange {
+        color: rgb(255, 249, 65);
     }
 </style>
 <br>
@@ -59,13 +68,14 @@
         </div>
     </div>
     <h6>Período: {{ financeiro_dash.start_date }} a {{ financeiro_dash.end_date }}</h6>
+    <br>
 
     <div class="container-fluid">
         <!-- Informações Gerais -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card text-white bg-success mb-3">
-                    <div class="card-header">Entradas </div>
+                    <div class="card-header">Entradas  <i class="bi bi-graph-up"></i></div>
                     <div class="card-body">
                         <h5 class="card-title">R$ {{ financeiro_dash.entradas|floatformat:2 }}</h5>
                     </div>
@@ -73,7 +83,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card text-white bg-danger mb-3">
-                    <div class="card-header">Saídas</div>
+                    <div class="card-header">Saídas  <i class="bi bi-graph-down"></i></div>
                     <div class="card-body">
                         <h5 class="card-title">R$ {{ financeiro_dash.saidas|floatformat:2 }}</h5>
                     </div>
@@ -81,7 +91,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">Saldo Final</div>
+                    <div class="card-header">Saldo Final  <i class="bi bi-currency-exchange"></i></div>
                     <div class="card-body">
                         <h5 class="card-title">R$ {{ financeiro_dash.saldo|floatformat:2 }}</h5>
                     </div>

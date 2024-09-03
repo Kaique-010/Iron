@@ -1,45 +1,44 @@
+<!-- Nova Pessoa  -->
 {% extends 'base.html' %}
 
 {% block title %}
-    Criar pessoas
+    Criar Pessoa
 {% endblock %}
-<br>
-<br>
-{% block content %}
-<br>
-<br>
-<style>
 
-    h3{
-        color: rgb(225, 211, 193);
-        text-align: center;
-    }
-    .form {
-        border-width: 2px;
-        border-color: #5d88b6; /* Cor da borda */
-        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
-    }
+{% block content %}
+<style>
     .card {
         border-width: 2px;
         border-color: #5d88b6; /* Cor da borda */
         border-style: solid;
         background: linear-gradient(#0f0f0f, #53524f); /* Gradiente de fundo */
     }
+    .form-control {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
+    }
+    h3 {
+        text-align: center;
+        color: rgb(225, 211, 193);
+    }
+    .container {
+        margin-top: 2rem;
+    }
 </style>
-<div class="card">
-<div class="container mt-4">
-    <h3 class="display-8">Cadastrar pessoa <i class="bi bi-person-check fs-4"></i></h3>
-</div>
-</div>
-<div class="card">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data" class="form">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Salvar</button>
-        </form>
-    </div>  
-</div>  
-<a href="{% url 'pessoaslistas' %}" class="btn btn-secondary mt-2">Voltar Para pessoas</a>
 
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Cadastrar Pessoa <i class="bi bi-person-check fs-4"></i></h3>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+            </form>
+        </div>
+        <a href="{% url 'pessoaslistas' %}" class="btn btn-secondary mt-3">Voltar Para Pessoas</a>
+    </div>
+</div>
 {% endblock %}
