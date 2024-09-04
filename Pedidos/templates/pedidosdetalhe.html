@@ -19,10 +19,12 @@ Detalhe de Pedidos
         <div class="card-body">
             <p class="card-text">Cliente: {{ object.cliente }}</p>
             <p class="card-text">Data: {{ object.data }}</p>
+            <p class="card-text">Vendedor: {{ object.vendedor }}</p>
+            <p class="card-text">Forma de Recebimento: {{ object.financeiro }}</p><br>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Produto</th>
+                        <th>Produtos</th>
                         <th>Quantidade</th>
                         <th>Preço Unitário</th>
                         <th>Subtotal</th>

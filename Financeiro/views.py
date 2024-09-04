@@ -1,6 +1,9 @@
+from io import BytesIO
 from django.db import connection
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+import openpyxl
 from .models import ContaAPagar, ContaAReceber
 from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm
 from django.shortcuts import render
@@ -193,3 +196,70 @@ def dash(request):
     }
 
     return render(request, 'dash.html', context)
+
+
+
+
+def exportar_contaapagar_excel(request):
+    # Cria uma planilha do Excel
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Contas a Pagar'
+
+
+    columns = ['Documento', 'Descrição', 'Valor', 'Emissão', 'Vencimento', 'Status', 'Categoria', 'Forma de Pagamento']
+    worksheet.append(columns)
+
+    contas = ContaAPagar.objects.all()  
+    for conta in contas:
+        worksheet.append([
+            conta.documento,
+            conta.descricao,
+            conta.valor,
+            conta.data_emissao.strftime('%d/%m/%Y') if conta.data_emissao else '',  
+            conta.data_vencimento.strftime('%d/%m/%Y') if conta.data_vencimento else '',  
+            conta.status_pagamento,
+            str(conta.categorias),
+            str(conta.forma_pagamento),
+        ])
+   
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=contas_a_pagar.xlsx'  # Nome do arquivo atualizado
+    return response
+
+
+def exportar_contaareceber_excel(request):
+    
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Contas a Receber'
+
+    # Define o cabeçalho
+    columns = ['Documento', 'Descrição', 'Valor', 'Emissão', 'Vencimento', 'Status', 'Categoria', 'Forma de Recebimento']
+    worksheet.append(columns)
+
+    
+    contas = ContaAReceber.objects.all() 
+    for conta in contas:
+        worksheet.append([
+            conta.documento,
+            conta.descricao,
+            conta.valor,
+            conta.data_emissao.strftime('%d/%m/%Y') if conta.data_emissao else '',
+            conta.data_vencimento.strftime('%d/%m/%Y') if conta.data_vencimento else '',  
+            conta.status_recebimento, 
+            str(conta.categorias),
+            str(conta.forma_recebimento)
+        ])
+   
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=contas_a_receber.xlsx'  
+    return response

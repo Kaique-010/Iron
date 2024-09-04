@@ -75,7 +75,7 @@
                                 
                                 eventoItem.innerHTML = `
                                     <strong>${evento.titulo}</strong><br>
-                                    Início: ${new Date(evento.data_inicio).toLocaleString()}<br>
+                                    Início: ${new Date(evento.data_inicio).toLocaleString()} +GMT<br>
                                     Horário: ${evento.horario}<br>
                                     Local: ${evento.local || 'Não especificado'}<br>
                                     Descrição: ${evento.descricao || 'Sem descrição'}

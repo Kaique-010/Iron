@@ -31,6 +31,10 @@
         color: aquamarine;
     }
 
+    .bi-hammer {
+        color: rgb(179, 211, 196);
+    }
+
     .bi-person-check {
         color: rgb(185, 190, 200);
     }
@@ -41,6 +45,10 @@
 
     .bi-calendar {
         color: blanchedalmond;
+    }
+
+    .bi-box-seam{
+        color: rgb(158, 104, 121);
     }
 
     .nav-link:hover .bi {
@@ -96,6 +104,17 @@
                             <li><a class="dropdown-item" href="{% url 'conta_a_receber_list' %}">Documentos a
                                     Receber</a></li>
                             <li><a class="dropdown-item" href="{% url 'fluxo_caixa' %}">Fluxo de Caixa</a></li>
+                        </ul>
+                    </li>
+                    <!-- Menu de Ordens de Serviço -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Ordens de Serviço
+                            <i class="bi bi-hammer" style="font-size: 2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'Oslistas' %}">Ordens de Serviço</a></li>
                         </ul>
                     </li>
 

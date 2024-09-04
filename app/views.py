@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
-from django.db.models import Sum, F  # Importar Sum e F aqui
+from django.db.models import Sum, F
 from Produtos.models import Produtos, Precos, models
 from Entradas_Produtos.models import Entrada_Produtos
 from Saidas_Produtos.models import Saida_Produtos
@@ -36,11 +36,12 @@ def home(request):
     # Calcular o total de movimentações
     total_movimentacoes = total_quantidade_entradas + total_quantidade_saidas
 
-    # Buscar eventos futuros
+
     agora = timezone.now()
     proximos_eventos = Evento.objects.filter(
         data_inicio__gte=agora,
-        data_inicio__lte=agora + timedelta(minutes=6000)
+        data_inicio__lte=agora + timedelta(minutes=6000),
+        
     )
     mostrar_modal = proximos_eventos.exists()
     

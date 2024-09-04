@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sequences.apps.SequencesConfig',
     'app',
     'Marcas',
     'Familias',
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'Financeiro',
     'Agenda',
     'Pedidos',
+    'Ordem_de_Servico',
 
 ]
 

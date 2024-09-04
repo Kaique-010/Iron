@@ -19,6 +19,7 @@ urlpatterns = [
     path('', include ('Saidas_Produtos.urls')),
     path('', include ('Financeiro.urls')),
     path('', include ('Agenda.urls')),
+    path('', include ('Ordem_de_Servico.urls')),
 
 ]
 

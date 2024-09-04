@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+
+{% block title %}
+Nova Ordem de Serviço
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    h4 {
+        text-align: center;
+    }
+
+    .item-row {
+        margin-bottom: 10px;
+    }
+
+    .item-row button {
+        margin-top: 5px;
+    }
+
+    .form-control {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
+    }
+    .card {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid; 
+        background: linear-gradient(#0f0f0f, #53524f);
+    }
+</style>
+<br>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Nova Ordem de Serviço <i class="bi bi-hammer" style="font-size: 2rem;"></i></h3>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <br>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_numero_os" class="form-label">Número da O.S:</label>
+                        {{ form.numero_os|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="id_cliente" class="form-label">Cliente:</label>
+                        {{ form.cliente|add_class:"form-control" }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_data_abertura" class="form-label">Data de Abertura:</label>
+                        {{ form.data_abertura|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_data_fechamento" class="form-label">Data de Fechamento:</label>
+                        {{ form.data_fechamento|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Itens da Ordem de Serviço</h4>
+                {{ formset.management_form }}
+                <div id="item_formset">
+                    {% for form in formset %}
+                        <div class="item-row">
+                            {{ form.as_p }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Ordem de Serviço</button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'Oslistas' %}" class="btn btn-secondary mt-2">Voltar Para Ordens de Serviço</a>
+</div>  
+
+{% endblock %}

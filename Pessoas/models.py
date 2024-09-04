@@ -16,6 +16,7 @@ class Classificacao(models.TextChoices):
     CLIENTE = 'Cliente', 'Cliente'
     FORNECEDOR = 'Fornecedor', 'Fornecedor'
     FUNCIONARIO = 'Funcionário', 'Funcionário'
+    VENDEDOR = 'Vendedor', 'Vendedor'
     AMBOS = 'Ambos', 'Ambos'
 
 class Pessoas(Base):

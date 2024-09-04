@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     ContaAPagarListView, ContaAPagarDetailView, ContaAPagarCreateView, ContaAPagarUpdateView, ContaAPagarDeleteView,
-    ContaAReceberListView, ContaAReceberDetailView, ContaAReceberCreateView, ContaAReceberUpdateView, ContaAReceberDeleteView, fluxo_caixa, dash
+    ContaAReceberListView, ContaAReceberDetailView, ContaAReceberCreateView, ContaAReceberUpdateView, ContaAReceberDeleteView, fluxo_caixa, dash,exportar_contaapagar_excel, exportar_contaareceber_excel
 )
 
 urlpatterns = [
@@ -17,4 +17,6 @@ urlpatterns = [
     path('contas_a_receber/criar/', ContaAReceberCreateView.as_view(), name='conta_a_receber_create'),
     path('contas_a_receber/<int:pk>/editar/', ContaAReceberUpdateView.as_view(), name='conta_a_receber_update'),
     path('contas_a_receber/<int:pk>/excluir/', ContaAReceberDeleteView.as_view(), name='conta_a_receber_delete'),
+    path('exportarapagar/', exportar_contaapagar_excel, name='exportar_contaapagar_excel'),
+    path('exportarareceber/', exportar_contaareceber_excel, name='exportar_contaareceber_excel'),
 ]

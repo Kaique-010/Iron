@@ -107,6 +107,11 @@ Contas a receber
             </tfoot>
         </table>
     </div>
+    <div class="col-md-6">
+        <a href="{% url 'exportar_contaareceber_excel' %}" class="btn btn-info">
+            <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
+        </a>
+    </div>
 
     {% include 'parcials/pagination.html' %}
 
