@@ -58,6 +58,7 @@ def listar_eventos(request):
     }
     return render(request, 'listar_eventos.html', context)
 
+
 def eventos_futuros_json(request):
     agora = timezone.now()
     proximos_eventos = models.Evento.objects.filter(
@@ -70,3 +71,30 @@ def eventos_futuros_json(request):
     ))
     
     return JsonResponse({'eventos': eventos})
+
+
+
+def eventos_json(request):
+    agora = timezone.now()
+    proximos_eventos = models.Evento.objects.filter(
+        data_inicio__gte=agora,
+        data_inicio__lte=agora + timedelta(days=30)  # Ajuste o intervalo conforme necessário
+    ).order_by('data_inicio')
+    
+    eventos = []
+    
+    for evento in proximos_eventos:
+        # Combine a data e o horário para o início do evento
+        inicio_evento = datetime.combine(evento.data_inicio, evento.horario)
+        # Defina o fim do evento como uma hora depois do início
+        fim_evento = inicio_evento + timedelta(hours=1)
+        
+        eventos.append({
+            'title': evento.titulo,
+            'start': inicio_evento.isoformat(),
+            'end': fim_evento.isoformat(),
+            'location': evento.local,
+            'description': evento.descricao,
+        })
+    
+    return JsonResponse({'events': eventos})

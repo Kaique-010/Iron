@@ -22,16 +22,21 @@ class Pedido(Base):
         ('Concluído', 'Concluído'),
         ('Cancelado', 'Cancelado'),
     ]
+
     numero_pedido = models.CharField('Nº Pedido', max_length=20, unique=True, blank=True)
     cliente = models.ForeignKey(Pessoas, on_delete=models.PROTECT, related_name='pedidos')
+    nome_cliente = models.CharField('Nome Cliente', max_length=100, blank=True)
     data = models.DateTimeField('Data do Pedido', blank=True, null=True)
     status = models.CharField('Status', max_length=20, choices=STATUS_CHOICES, default='Pendente')
     total = models.DecimalField('Total', max_digits=10, decimal_places=2, default=0)
-    vendedor = models.ForeignKey(Pessoas, on_delete=models.PROTECT, limit_choices_to={'classificacao': 'Vendedor'}, related_name='vendas', default='Sem Vendedor')
+    vendedor = models.ForeignKey(Pessoas, on_delete=models.PROTECT, limit_choices_to={'classificacao': 'Vendedor'}, related_name='vendas', null=True, blank=True)
     nome_vendedor = models.CharField('Nome do Vendedor', max_length=100, blank=True)
-    financeiro = models.ForeignKey(FormasRecebimento, on_delete=models.PROTECT, default='1')
+    financeiro = models.ForeignKey(FormasRecebimento, on_delete=models.PROTECT, null=True, blank=True)
     forma_recebimento = models.CharField('Forma de Recebimento', max_length=100, blank=True)
     observacoes = models.TextField('Observações', blank=True, null=True)
+    contato_realizado = models.BooleanField(default=False)
+    data_contato = models.DateField(null=True, blank=True)
+    notas_contato = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Pedido'
@@ -44,25 +49,17 @@ class Pedido(Base):
     def calcular_total(self):
         return sum(item.get_total() for item in self.itens.all())
 
-    
-    def num(self, *args, **kwargs):
-        if not self.numero_pedido:
-         self.numero_pedido = get_next_value('numero_pedido')
-         super().num(*args, **kwargs) 
-    
     def save(self, *args, **kwargs):
-        # Atualiza o total antes de salvar
         self.total = self.calcular_total()
         
-        # Preenche os campos nome_vendedor e forma_recebimento
         if self.vendedor:
             self.nome_vendedor = self.vendedor.nome
         if self.financeiro:
             self.forma_recebimento = self.financeiro.descricao
+        if self.cliente:
+            self.nome_cliente = self.cliente.nome
         
         super().save(*args, **kwargs)
-
-
 
 class ItemPedido(Base):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='itens')

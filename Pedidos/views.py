@@ -7,15 +7,27 @@ from django.forms import inlineformset_factory, formset_factory
 from django.core import serializers
 from Financeiro.forms import DateRangeForm
 from .models import Pedido, ItemPedido
-from .forms import ItemPedidoForm, PedidoForm
+from .forms import CRMForm, ItemPedidoForm, PedidoForm
 from Produtos.models import Produtos
 from django import forms
 from django.views.generic.edit import FormMixin
 from django.db.models import Sum
 import openpyxl
 from io import BytesIO
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
+from django.db import connection
+from django.utils.dateparse import parse_date
+from django.core.exceptions import MultipleObjectsReturned
+from django.utils.timezone import now
 
+
+def dictfetchall(cursor):
+    """Converte o resultado do cursor em uma lista de dicionários."""
+    columns = [col[0] for col in cursor.description]
+    return [
+        dict(zip(columns, row))
+        for row in cursor.fetchall()
+    ]
 
 
 
@@ -218,7 +230,7 @@ def exportar_pedidos_excel(request):
     for item in itens_pedidos:
         worksheet_itens.append([
             item.pedido.numero_pedido,
-            item.produto.nome,  # Presumindo que há um campo `produto` em ItemPedido com um atributo `nome`
+            item.produto.nome,
             item.quantidade,
             item.preco_unitario,
             item.quantidade * item.preco_unitario,
@@ -231,3 +243,113 @@ def exportar_pedidos_excel(request):
     response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=pedidos.xlsx'
     return response
+
+def crm(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Converta as datas para o formato adequado, se forem fornecidas
+    start_date = parse_date(start_date) if start_date else None
+    end_date = parse_date(end_date) if end_date else None
+
+    query = """
+        SELECT 
+            p.numero_pedido AS "Nº Pedido",
+            p.data,
+            p.cliente_id AS "Cliente",
+            p.nome_cliente AS "Nome Cliente",
+            p.nome_vendedor AS "Nome Vendedor",
+            p.notas_contato AS "Notas Contato",
+            p.id AS "pedido_id"
+        FROM pedidos_pedido p
+        INNER JOIN (
+            SELECT 
+                cliente_id,
+                MAX(numero_pedido) AS max_numero_pedido
+            FROM pedidos_pedido
+            GROUP BY cliente_id
+        ) sub ON p.cliente_id = sub.cliente_id AND p.numero_pedido = sub.max_numero_pedido
+    """
+    
+    # Adicione condições para filtragem por data, se fornecidas
+    if start_date and end_date:
+        query += " WHERE p.data BETWEEN %s AND %s"
+        params = [start_date, end_date]
+    else:
+        params = []
+
+    # Execute a consulta
+    with connection.cursor() as cursor:
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+
+    # Crie um contexto para passar para o template
+    context = {
+        'crm_data': result,
+        'start_date': start_date,
+        'end_date': end_date,
+        'form': CRMForm(initial={'start_date': start_date, 'end_date': end_date}),
+    }
+    return render(request, 'crm.html', context)
+
+
+
+
+def marcar_contato_realizado(request, pedido_id):
+    try:
+        pedido = Pedido.objects.get(numero_pedido=pedido_id)
+        pedido.contato_realizado = True
+        pedido.data_contato = now().date()
+        pedido.save()
+    except Pedido.DoesNotExist:
+        return redirect('crm')  # Ajuste para a URL do CRM
+    except MultipleObjectsReturned:
+        return redirect('crm')  # Ajuste para a URL do CRM
+
+    return redirect('detalhar_contato', pedido_id=pedido_id)
+
+
+
+def detalhar_contato(request, pedido_id):
+    query = """
+         SELECT
+            p.numero_pedido AS "numero_pedido",
+            p.data,
+            p.nome_cliente AS "nome_cliente",
+            p.nome_vendedor AS "nome_vendedor",
+            pc.telefone AS "telefone_cliente",
+            pc.email AS "email_cliente",
+            p.notas_contato
+        FROM pedidos_pedido p
+        LEFT JOIN pessoas_pessoas pc ON p.cliente_id = pc.id
+        WHERE p.numero_pedido = %s
+    """
+    
+    params = [pedido_id]
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, params)
+        resultado = dictfetchall(cursor)
+
+    if not resultado:
+        raise Http404("Pedido não encontrado")
+
+    pedido = resultado[0]
+
+    if request.method == 'POST':
+        notas = request.POST.get('notas')
+        update_query = """
+            UPDATE pedidos_pedido
+            SET notas_contato = %s
+            WHERE numero_pedido = %s
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(update_query, [notas, pedido_id])
+        
+        return redirect('/crm/')
+
+    context = {
+        'pedido': pedido,
+    }
+
+    return render(request, 'detalhar_contato.html', context)

@@ -42,26 +42,7 @@ Lista de pessoas
     </div>
 </div>
 
-<form method="get" class="mb-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="start_date">Data Inicial:</label>
-                {{ form.start_date }}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="end_date">Data Final:</label>
-                {{ form.end_date }}
-            </div>
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-        </div>
-    </div>
-</form>
-<p class="text-center"><strong>Período:</strong> {{ start_date }} a {{ end_date }}</p>
+
 
 <div class="table-responsive">
     <table class="table table-striped table-dark table-bordered">
@@ -70,6 +51,7 @@ Lista de pessoas
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Obs.</th>
+                <th>Classificação</th>
                 <th>Foto</th>
                 <th>Ações</th>
             </tr>
@@ -80,6 +62,7 @@ Lista de pessoas
                 <td>{{ pessoas.id }}</td>
                 <td>{{ pessoas.nome }}</td>
                 <td>{{ pessoas.obs }}</td>
+                <td>{{ pessoas.classificacao }}</td>
                 <td>
                     {% if pessoas.foto %}
                         <center><img src="{{ pessoas.foto.url }}" alt="Foto de {{ pessoas.nome }}" style="width: 70px; height: auto;"></center>
@@ -107,6 +90,11 @@ Lista de pessoas
         </tbody>
     </table>
 </div>
+
+<div class="col-md-6">
+    <a href="{% url 'exportar_pessoas_excel' %}" class="btn btn-info">
+        <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
+    </a>
 </div>
 
 {% include 'parcials/pagination.html' %}

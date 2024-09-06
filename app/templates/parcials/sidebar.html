@@ -89,6 +89,19 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="{% url 'listar_eventos' %}">Eventos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'eventos' %}">Calendário</a></li>
+                        </ul>
+                    </li>
+
+                 <!-- Menu de CRM -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'crm' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            CRM
+                            <i class="bi bi-check2-square fs-4"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'crm' %}">Visão Geral</a></li>
+                            <!-- Adicione outros itens de menu aqui se necessário -->
                         </ul>
                     </li>
                     <!-- Menu de Financeiro -->

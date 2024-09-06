@@ -44,3 +44,38 @@ class ItemPedidoForm(forms.ModelForm):
             raise forms.ValidationError("A quantidade deve ser maior que zero.")
         return data
     
+
+class CRMForm(forms.ModelForm):
+    class Meta:
+        model = Pedido
+        fields = [
+            'numero_pedido',
+            'cliente',
+            'nome_cliente',
+            'data',
+            'total',
+            'vendedor',
+            'nome_vendedor',
+            'financeiro',
+            'forma_recebimento',
+            'contato_realizado',
+            'data_contato',
+            'notas_contato',
+        ]
+        widgets = {
+            'data': forms.DateInput(attrs={'type': 'date'}),
+            'data_contato': forms.DateInput(attrs={'type': 'date'}),
+            'total': forms.NumberInput(attrs={'step': '0.01'}),
+            'notas_contato': forms.Textarea(attrs={'rows': 4}),
+        }
+    
+    start_date = forms.DateField(
+        label='Data Inicial',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    end_date = forms.DateField(
+        label='Data Final',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
