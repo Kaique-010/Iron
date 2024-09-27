@@ -102,7 +102,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "ironSystem",
         "USER": "root",
-        "PASSWORD": "Root",
+        "PASSWORD": "Root@1234",
         "HOST": "localhost",
         "PORT": "3306",
     }
@@ -132,7 +132,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Sao_paulo'
+TIME_ZONE = 'America/Sao_Paulo'
+
 
 USE_I18N = True
 
