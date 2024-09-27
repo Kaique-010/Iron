@@ -241,12 +241,12 @@ def crm(request):
             p.nome_vendedor AS "Nome Vendedor",
             p.notas_contato AS "Notas Contato",
             p.id AS "pedido_id"
-        FROM pedidos_pedido p
+        FROM Pedidos_pedido p
         INNER JOIN (
             SELECT 
                 cliente_id,
                 MAX(id) AS max_numero_pedido  
-            FROM pedidos_pedido
+            FROM Pedidos_pedido
             GROUP BY cliente_id
         ) sub ON p.cliente_id = sub.cliente_id AND p.id = sub.max_numero_pedido
     """
@@ -413,8 +413,8 @@ def enviar_emails_inativos(request):
                 MAX(p.data) AS ultima_compra,
                 MAX(p.total) AS total,
                 p.nome_cliente AS nome_cliente
-            FROM pedidos_pedido p
-            JOIN pessoas_pessoas pe ON p.cliente_id = pe.id
+            FROM Pedidos_pedido p
+            JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
             WHERE p.data <= %s
             GROUP BY p.cliente_id, pe.email, p.nome_cliente
                     """
@@ -447,7 +447,7 @@ def enviar_emails_inativos(request):
             return HttpResponseBadRequest("Nenhum cliente selecionado ou mensagem vazia.")
         
         query = """
-            SELECT email FROM pessoas_pessoas
+            SELECT email FROM Pessoas_pessoas
             WHERE id IN %s
         """
         
@@ -479,8 +479,8 @@ def emails(request):
             pe.email,
             MAX(p.data) AS ultima_compra,
             p.total AS total
-        FROM pedidos_pedido p
-        JOIN pessoas_pessoas pe ON p.cliente_id = pe.id
+        FROM Pedidos_pedido p
+        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
         WHERE p.data <= %s
         GROUP BY p.cliente_id, pe.email
     """
@@ -509,8 +509,8 @@ def clientes_inativos_por_ultima_compra(request):
             pe.email,
             MAX(p.data) AS ultima_compra,
             p.total AS total
-        FROM pedidos_pedido p
-        JOIN pessoas_pessoas pe ON p.cliente_id = pe.id
+        FROM Pedidos_pedido p
+        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
         GROUP BY p.cliente_id, pe.email
         HAVING MAX(p.data) <= %s
     """
@@ -538,8 +538,8 @@ def emails(request):
             pe.email,
             MAX(p.data) AS ultima_compra,
             p.total AS total
-        FROM pedidos_pedido p
-        JOIN pessoas_pessoas pe ON p.cliente_id = pe.id
+        FROM Pedidos_pedido p
+        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
         WHERE p.data <= %s
         GROUP BY p.cliente_id, pe.email
     """
@@ -568,8 +568,8 @@ def clientes_inativos_por_ultima_compra(request):
             pe.email,
             MAX(p.data) AS ultima_compra,
             p.total AS total
-        FROM pedidos_pedido p
-        JOIN pessoas_pessoas pe ON p.cliente_id = pe.id
+        FROM Pedidos_pedido p
+        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
         GROUP BY p.cliente_id, pe.email
         HAVING MAX(p.data) <= %s
     """
