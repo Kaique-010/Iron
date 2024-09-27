@@ -53,8 +53,8 @@ Contas a Pagar
                     <label for="status">Status:</label>
                     <select id="status" name="status" class="form-select">
                         <option value="">Todos</option>
-                        <option value="True" {% if request.GET.status == "True" %}selected{% endif %}>Pago</option>
-                        <option value="False" {% if request.GET.status == "False" %}selected{% endif %}>Pendente</option>
+                        <option value="True" {% if request.GET.status=="True" %}selected{% endif %}>Pago</option>
+                        <option value="False" {% if request.GET.status=="False" %}selected{% endif %}>Pendente</option>
                     </select>
                 </div>
             </div>
@@ -122,18 +122,14 @@ Contas a Pagar
         </table>
     </div>
 
-    <<<<<<< HEAD <!-- Export Button -->
-        <div class="text-end mb-4">
-            <a href="{% url 'exportar_contaapagar_excel' %}" class="btn btn-info">
-                <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
-            </a>
-        </div>
+    <!-- Export Button -->
+    <div class="text-end mb-4">
+        <a href="{% url 'exportar_contaapagar_excel' %}" class="btn btn-info">
+            <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
+        </a>
+    </div>
 
-        <!-- Pagination -->
-        {% include 'parcials/pagination.html' %}
-        {% endblock %}
-        =======
-        {% include 'parcials/pagination.html' %}
+    <!-- Pagination -->
+    {% include 'parcials/pagination.html' %}
 
-        {% endblock %}
-        >>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
+    {% endblock %}
