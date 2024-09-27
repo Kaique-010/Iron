@@ -56,7 +56,6 @@
 </style>
 
 <nav class="navbar navbar-dark bg-dark fixed-top">
-<<<<<<< HEAD
   <div class="container-fluid">
     <!-- Logo -->
     <a class="navbar-brand" href="{% url 'home' %}">
@@ -220,86 +219,6 @@
           </li>
         </ul>
       </div>
-=======
-    <div class="container-fluid">
-        <!-- Logo -->
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="{% static 'logo.jpg' %}" style="height: 40px;">
-            Iron Sistemas Inteligentes
-        </a>
-        <!-- Toggler Button -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar"
-            aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span> Menu
-        </button>
-        <!-- Offcanvas Menu -->
-        <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
-            aria-labelledby="offcanvasDarkNavbarLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">MENU PRINCIPAL</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                    <!-- Menu de Produtos -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Produtos
-                            <i class="bi bi-box-seam fs-4"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'produtoslistas'%}">Cadastros Produtos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'gruposlistas' %}">Grupos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'marcaslistas' %}">Marcas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'familiaslistas' %}">Familias</a></li>
-                            <li><a class="dropdown-item" href="{% url 'localidadeslistas' %}">Localidades (Estoques)</a>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'entradaslistas' %}">Entradas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'saidaslistas' %}">Saídas</a></li>
-                        </ul>
-                    </li>
-                    <!-- Menu de Pessoas -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Pessoas
-                            <i class="bi bi-person-check fs-4"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'pessoaslistas' %}">Cadastros</a></li>
-                        </ul>
-                    </li>
-                    <!-- Menu de Financeiro -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Financeiro
-                            <i class="bi bi-currency-dollar fs-4"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'conta_a_pagar_list' %}">Documentos a Pagar</a></li>
-                            <li><a class="dropdown-item" href="{% url 'conta_a_receber_list' %}">Documentos a Receber</a></li>
-                            <li><a class="dropdown-item" href="{% url 'fluxo_caixa' %}">Fluxo de Caixa</a></li>
-                        </ul>
-                    </li>
-                    <!-- Menu de Dashboards -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Dashboards
-                            <i class="bi bi-graph-up fs-4"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'home' %}">Extratos</a></li>
-                            <li><a class="dropdown-item" href="#">Financeiro</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
->>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
     </div>
   </div>
 </nav>
