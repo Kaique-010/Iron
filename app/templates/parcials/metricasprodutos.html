@@ -1,11 +1,19 @@
 {% load app_filters %}
 <style>
+<<<<<<< HEAD
     .card {
         background: linear-gradient(#00000099, #ffffff99);
     }
 
     h2 {
         font-size: 30px;
+=======
+    .card{
+        background:linear-gradient(#00000099, #ffffff99)
+    }
+    h2{
+        font-size:30px;
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
         color: rgb(248, 232, 212);
     }
 
@@ -27,6 +35,7 @@
     .chart-card canvas {
         height: 250px;
     }
+<<<<<<< HEAD
 
     .bi-graph-up {
         color: blanchedalmond;
@@ -49,6 +58,34 @@
                     </div>
                 </div>
             </div>
+=======
+    .bi-graph-up{
+        color: blanchedalmond;
+    }
+</style>
+<div class="card">
+<h2 class="text-center mb-4">Dashboards Overview</h2><center><i class="bi bi-graph-up" style="font-size: 1.8rem;"></i></center>
+
+<div class="container">
+    <div class="row">
+        <!-- Card 1 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Quantidade de Produtos Distintos</h5>
+                    <p class="card-text small">{{produtos_metricas.total_produtos}}</p>
+
+                </div>  
+            </div>
+        </div>
+        
+        <!-- Card 2 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-secondary text-light" style="border-radius: 0.375rem; font-weight: bold;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Saldo  em Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_saldo_produtos}} </p>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 
             <!-- Card 2 -->
             <div class="col-12 col-sm-6 col-md-4 mb-3">
@@ -102,6 +139,16 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
+=======
+        
+        <!-- Card 3 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-info text-light" style="border-radius: 0.375rem; font-weight: bold;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Valor de Estoque</h5>
+                    <p class="card-text small"> {{produtos_metricas.valor_estoque|currency_reais}}</p>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 
         <!-- Cards para gráficos -->
         <div class="row mt-4">
@@ -116,6 +163,17 @@
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+        </div>
+        
+        <!-- Card 4 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-light text-dark" style="border-radius: 0.375rem;font-weight: bold;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Quantidade de Movimentações</h5>
+                    <p class="card-text small text-dark">{{produtos_metricas.total_movimentacoes}} </p>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 
             <!-- Card 8: Gráfico de Entradas e Saídas -->
             <div class="col-12 col-sm-6 col-md-4 mb-3">
@@ -128,6 +186,28 @@
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+        </div>
+        
+        <!-- Card 5 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-secondary text-light" style="border-radius: 0.375rem;font-weight: bold;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Entradas de Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_quantidade_entradas}} </p>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 6 -->
+        <div class="col-12 col-sm-6 col-md-4 mb-3">
+            <div class="card text-center bg-info text-light" style="border-radius: 0.375rem;font-weight: bold;">
+                <div class="card-body p-3">
+                    <h5 class="card-title h6">Saídas de Estoque</h5>
+                    <p class="card-text small">{{produtos_metricas.total_quantidade_saidas}} </p>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 
             <!-- Card 9: Gráfico de Valor de Estoque -->
             <div class="col-12 col-sm-6 col-md-4 mb-3">
@@ -144,6 +224,49 @@
     </div>
 </div>
 
+<<<<<<< HEAD
+=======
+   <!--  Cards para graficos -->
+   <div class="row mt-4">
+    <!-- Card 7: Gráfico de Produtos -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-light text-dark" style="border-radius: 0.375rem;font-weight: bold;">
+            <div class="card-header">
+                <h5 class="card-title h6">Produtos Ativos x Produtos Inativos</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="produtosChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 8: Gráfico de Entradas e Saídas -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-secondary text-light" style="border-radius: 0.375rem;font-weight: bold;">
+            <div class="card-header">
+                <h5 class="card-title h6">Entradas vs Saídas</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="entradasSaidasChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 9: Gráfico de Valor de Estoque -->
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
+        <div class="card chart-card text-center bg-info text-light" style="border-radius: 0.375rem;font-weight: bold;">
+            <div class="card-header">
+                <h5 class="card-title h6">Valor Total do Estoque</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="valorEstoqueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 <!-- Chart.js script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -278,6 +401,7 @@
             });
         }
 
+<<<<<<< HEAD
         // Cria o gráfico de Produtos Ativos x Produtos Inativos
         var ctxProdutos = document.getElementById('produtosChart').getContext('2d');
         createChart(
@@ -288,6 +412,40 @@
         'Métricas de Produtos',                     // Rótulo do gráfico
         ['rgba(17, 37, 69, 0.8)', 'rgba(255, 99, 132, 0.8)'], // Cor de fundo das seções
         ['rgba(17, 37, 69, 1)', 'rgba(255, 99, 132, 1)']    // Cor da borda das seções
+=======
+    // Função para criar gráficos com configuração personalizada
+    function createChart(ctx, type, labels, data, label, colors) {
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: colors.background,
+                    borderColor: colors.border,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...config.options,
+                type: type
+            }
+        });
+    }
+
+    // Gráfico de Produtos
+    var ctxProdutos = document.getElementById('produtosChart').getContext('2d');
+    createChart(ctxProdutos, 'bar', 
+        ['Quantidade de Produtos'],
+        [{{ produtos_metricas.total_produtos }}],
+        'Quantidade de Produtos',
+        {
+            background: ['#112545'],
+            border: ['rgba(54, 162, 235, 1)'],
+            
+        }
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
     );
 
     // Cria o gráfico de Entradas e Saídas
@@ -312,5 +470,11 @@
         'rgb(248, 232, 212)',                  // Cor de fundo das barras
         'rgba(255, 205, 86, 1)'                 // Cor da borda das barras
     );
+<<<<<<< HEAD
     });
 </script>
+=======
+});
+</script>
+</div>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18

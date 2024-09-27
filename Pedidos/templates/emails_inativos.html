@@ -1,0 +1,155 @@
+{% extends 'base.html' %} {% block title %} Enviar E-mails para Clientes
+Inativos {% endblock %} {% block content %}
+
+<style>
+  h3 {
+    text-align: center;
+    color: bisque;
+  }
+  .container-fluid {
+    padding: 20px;
+  }
+  .pagination {
+    text-align: center;
+  }
+  .card {
+    border-width: 2px;
+    border-color: #5d88b6;
+    border-style: solid;
+    background: linear-gradient(#0f0f0f, #53524f);
+  }
+  .form-control {
+    border-width: 2px;
+    border-color: #5d88b6;
+    border-style: solid;
+  }
+  .btn-primary {
+    background-color: #87cefa; /* Azul claro */
+    border-color: #87cefa; /* Azul claro */
+  }
+  .btn-primary:hover {
+    background-color: #00bfff; /* Azul mais escuro no hover */
+    border-color: #00bfff; /* Azul mais escuro no hover */
+  }
+  /* Certifique-se de que a tabela é responsiva */
+  .table-responsive {
+    overflow-x: auto;
+  }
+  /* Ajuste do formulário para telas menores */
+  @media (max-width: 768px) {
+    .form-control {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn {
+      width: 100%;
+      margin: 10px 0;
+    }
+  }
+  /* Estilização do filtro */
+  .filter-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .filter-form input,
+  .filter-form button {
+    margin: 0 0.5rem;
+  }
+  .bi-calendar2-check {
+    color: bisque;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <center>
+        <h3 class="card-title">Cliente Sem Movimentação Ativa</h3>
+        <i class="bi bi-calendar2-check" style="font-size: 2rem"></i>
+      </center>
+      <br />
+      <br />
+      <!-- Filtro de período de inatividade -->
+      <form method="GET" action="" class="filter-form">
+        <label for="dias">Período de Inatividade (em dias):</label>
+        <input
+          type="number"
+          name="dias"
+          value="{{ dias_para_contato }}"
+          min="0"
+          class="form-control"
+          style="max-width: 150px"
+        />
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+      </form>
+      <br />
+      <br />
+      <!-- Formulário para envio de emails -->
+      <form method="POST" action="{% url 'enviar_emails_inativos' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="mensagem">Mensagem personalizada:</label>
+          <textarea name="mensagem" class="form-control" required></textarea>
+        </div>
+        <br />
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Selecionar</th>
+                <th>Cliente ID</th>
+                <th>Cliente</th>
+                <th>Email</th>
+                <th>Último Pedido</th>
+                <th>Valor Pedido</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if clientes_inativos %} {% for cliente in clientes_inativos %}
+              <tr>
+                <td>
+                  <input
+                    type="checkbox"
+                    name="clientes"
+                    value="{{ cliente.cliente_id }}"
+                  />
+                </td>
+                <td>{{ cliente.cliente_id }}</td>
+                <td>{{ cliente.nome_cliente }}</td>
+                <td>{{ cliente.email }}</td>
+                <td>{{ cliente.ultima_compra }}</td>
+                <td>{{ cliente.total }}</td>
+              </tr>
+              {% endfor %} {% else %}
+              <tr>
+                <td colspan="6">Nenhum cliente encontrado.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar Emails</button>
+      </form>
+      <!-- Paginação -->
+      <div class="pagination">
+        {% if is_paginated %}
+        <span class="step-links">
+          {% if page_obj.has_previous %}
+          <a href="?page=1">Primeira</a>
+          <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+          {% endif %}
+          <span class="current">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+          </span>
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+          <a href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+          {% endif %}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

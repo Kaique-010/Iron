@@ -6,6 +6,20 @@ Contas a Pagar
 {% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
+=======
+<br>
+<br>
+<style>
+.bi-graph-down-arrow{
+        color:aliceblue;
+    }
+
+</style>
+
+
+
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
 <div class="container-fluid">
     <!-- Header Card -->
     <div class="card mb-4" style="background-color: rgb(28, 33, 35);">
@@ -24,6 +38,7 @@ Contas a Pagar
     <br>
     <br>
 
+<<<<<<< HEAD
     <!-- Filters Form -->
     <form method="get" action="{% url 'conta_a_pagar_list' %}" class="mb-4">
         <div class="row">
@@ -31,6 +46,22 @@ Contas a Pagar
                 <div class="form-group">
                     <label for="start_date">Data Inicial:</label>
                     <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+=======
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" action="{% url 'conta_a_pagar_list' %}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="descricao" placeholder="Descrição"
+                        value="{{ request.GET.descricao }}">
+                    <select class="form-select" name="status">
+                        <option value="">Status</option>
+                        <option value="True" {% if request.GET.status == 'True' %}selected{% endif %}>Pago</option>
+                        <option value="False" {% if request.GET.status == 'False' %}selected{% endif %}>Pendente</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Pesquisar
+                        <i class="bi bi-search"></i>
+                    </button>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
                 </div>
             </div>
             <div class="col-md-3">
@@ -66,14 +97,23 @@ Contas a Pagar
         <table class="table table-striped table-dark table-bordered">
             <thead>
                 <tr>
+<<<<<<< HEAD
                     <th><a href="?sort_by=id" class="text-light">ID</a></th>
                     <th><a href="?sort_by=descricao" class="text-light">Descrição</a></th>
                     <th><a href="?sort_by=valor" class="text-light">Valor</a></th>
                     <th><a href="?sort_by=data_emissao" class="text-light">Emissão</a></th>
                     <th><a href="?sort_by=data_vencimento" class="text-light">Vencimento</a></th>
                     <th><a href="?sort_by=status_pagamento" class="text-light">Status</a></th>
+=======
+                    <th><a href="?sort_by=contas.id" class="text-light">ID</a></th>
+                    <th><a href="?sort_by=contas.descricao" class="text-light">Descrição</a></th>
+                    <th><a href="?sort_by=contas.valor" class="text-light">Valor</a></th>
+                    <th><a href="?sort_by=contas.data_emissao" class="text-light">Emissão</a></th>
+                    <th><a href="?sort_by=contas.data_vencimento" class="text-light">Vencimento</a></th>
+                    <th><a href="?sort_by=status_recebimento" class="text-light">Status</a></th>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
                     <th>Ações</th>
-                </tr>
+                <tr>
             </thead>
             <tbody>
                 {% for conta in contas_a_pagar %}
@@ -119,6 +159,7 @@ Contas a Pagar
         </table>
     </div>
 
+<<<<<<< HEAD
     <!-- Export Button -->
     <div class="text-end mb-4">
         <a href="{% url 'exportar_contaapagar_excel' %}" class="btn btn-info">
@@ -129,3 +170,8 @@ Contas a Pagar
     <!-- Pagination -->
 {% include 'parcials/pagination.html' %}
 {% endblock %}
+=======
+    {% include 'parcials/pagination.html' %}
+
+    {% endblock %}
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
