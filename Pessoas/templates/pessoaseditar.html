@@ -9,17 +9,49 @@ Editar pessoass
 <div class="container-mt-4">
     <h3 class="display-8"> Editar pessoas</h3>
 </div>
-    <div class="card">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data" class="form">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary"> Salvar Edição</button>
-            </form>
-        </div>  
-    </div>  
-    <br>
-    <a href="{% url 'pessoaslistas'%}" class="btn btn-secondary mt-2 float-end"> <i class="bi bi-arrow-left"></i> Voltar à ListaVoltar Para pessoas</a>
-</div>  
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
 
+            <input type="submit" value="Cadastrar" class="btn btn-primary mt-3">
+        </form>
+    </div>
+    <a href="{% url 'pessoaslistas' %}" class="btn btn-secondary mt-3">Voltar Para Pessoas</a>
+</div>
+</div>
+
+<!-- Adicionando o JavaScript para buscar o CEP -->
+<script>
+function buscarCEP() {
+    var cep = document.getElementById('id_cep').value;  // Use o ID correto para o campo de CEP
+
+    if (cep.length === 8) {
+        var url = 'https://viacep.com.br/ws/' + cep + '/json/';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.erro) {
+                    document.getElementById('id_logradouro').value = data.logradouro;
+                    document.getElementById('id_bairro').value = data.bairro;
+                    document.getElementById('id_cidade').value = data.localidade;
+                    document.getElementById('id_estado').value = data.uf;
+                } else {
+                    alert('CEP não encontrado!');
+                }
+            })
+            .catch(error => {
+                alert('Erro ao buscar o CEP. Tente novamente.');
+                console.error(error);
+            });
+    } else {
+        alert('CEP inválido. O CEP deve conter 8 dígitos.');
+    }
+}
+
+// Adicione um evento para chamar a função buscarCEP quando o campo de CEP perder o foco
+document.getElementById('id_cep').addEventListener('blur', buscarCEP);
+</script>
 {% endblock %}

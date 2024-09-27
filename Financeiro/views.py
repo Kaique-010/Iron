@@ -9,6 +9,7 @@ from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm
 from django.shortcuts import render
 from django.db.models import Sum
 from datetime import date, timedelta
+from django.utils.dateparse import parse_date
 
 
 class ContaAPagarListView(ListView):
@@ -20,19 +21,35 @@ class ContaAPagarListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         descricao = self.request.GET.get('descricao')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        status = self.request.GET.get('status')
+
+        start_date = parse_date(start_date) if start_date else None
+        end_date = parse_date(end_date) if end_date else None
 
         if descricao:
             queryset = queryset.filter(descricao__icontains=descricao)
+        
+        if start_date and end_date:
+            queryset = queryset.filter(data_emissao__range=(start_date, end_date))
+        elif start_date:
+            queryset = queryset.filter(data_emissao__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(data_emissao__lte=end_date)
+        
+        if status:
+            queryset = queryset.filter(status_pagamento=status == 'True')
 
         return queryset
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         contas = self.get_queryset()
         context['total_contas'] = contas.count()
         context['total_valor'] = contas.aggregate(total_valor=Sum('valor'))['total_valor'] or 0
         return context
-
+    
 class ContaAPagarDetailView(DetailView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_detail.html'
@@ -66,9 +83,25 @@ class ContaAReceberListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         descricao = self.request.GET.get('descricao')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        status = self.request.GET.get('status')
+
+        start_date = parse_date(start_date) if start_date else None
+        end_date = parse_date(end_date) if end_date else None
 
         if descricao:
             queryset = queryset.filter(descricao__icontains=descricao)
+        
+        if start_date and end_date:
+            queryset = queryset.filter(data_emissao__range=(start_date, end_date))
+        elif start_date:
+            queryset = queryset.filter(data_emissao__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(data_emissao__lte=end_date)
+        
+        if status:
+            queryset = queryset.filter(status_recebimento=status == 'True')
 
         return queryset
 

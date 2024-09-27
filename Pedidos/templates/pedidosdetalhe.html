@@ -14,7 +14,7 @@ Detalhe de Pedidos
 
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title">Número Pedido: {{ object.id }}</h5>
+            <h5 class="card-title">Pedido: {{ object.id }}</h5>
         </div>
         <div class="card-body">
             <p class="card-text">Cliente: {{ object.cliente }}</p>
@@ -36,7 +36,7 @@ Detalhe de Pedidos
                         <td>{{ item.produto }}</td>
                         <td>{{ item.quantidade }}</td>
                         <td>{{ item.preco_unitario|floatformat:2 }}</td>
-                        <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+                        <td>R$ {{ item.total|floatformat:2 }}</td>
                     </tr>
                     {% empty %}
                     <tr>

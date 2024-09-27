@@ -31,6 +31,12 @@ class Pessoas(Base):
     obs = models.TextField('Observações', max_length=100)
     classificacao = models.CharField('Classificação', max_length=20, choices=Classificacao.choices)
     slug = models.SlugField('Slug', max_length=255, unique=True, blank=True)
+    cep = models.CharField(max_length=9, default='00000-000')
+    logradouro = models.CharField(max_length=255, blank=True, null=True)
+    numero = models.IntegerField(default= 0)
+    bairro = models.CharField(max_length=100, blank=True, null=True)
+    cidade = models.CharField(max_length=100, blank=True, null=True)
+    estado = models.CharField(max_length=2, blank=True, null=True)
 
     def __str__(self):
         return self.nome

@@ -6,64 +6,74 @@ Contas a Pagar
 {% endblock %}
 
 {% block content %}
-<br>
-<br>
-<style>
-.bi-graph-down-arrow{
-    color:rgb(196, 85, 85);
-    }
-
-    h3{
-        color: rgb(225, 211, 193);
-    }
-
-</style>
-
-
-
 <div class="container-fluid">
-    <div class="card" style="background-color: rgb(28, 33, 35);">
-    <center><h3>Contas a Pagar</h3><i class="bi bi-graph-down-arrow" style="font-size: 2rem;"></i></i></center>
+    <!-- Header Card -->
+    <div class="card mb-4" style="background-color: rgb(28, 33, 35);">
+        <div class="card-body text-center">
+            <h3 class="text-light">Contas a Pagar</h3>
+            <i class="bi bi-graph-down-arrow" style="font-size: 2rem; color: rgb(196, 85, 85);"></i>
+        </div>
     </div>
-    <div class="container-fluid"></div>
-    <div class="col md-4">
-        <div class="row mb-4"></div>
+
+    <!-- Action Button -->
+    <div class="mb-4">
         <a href="{% url 'conta_a_pagar_create' %}" class="btn btn-success float-end">
             <i class="bi bi-plus"></i> Adicionar Conta
         </a>
     </div>
+    <br>
+    <br>
 
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <form method="get" action="{% url 'conta_a_pagar_list' %}">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="descricao" placeholder="Descrição"
-                        value="{{ request.GET.descricao }}">
-                    <select class="form-select" name="status">
-                        <option value="">Status</option>
+    <!-- Filters Form -->
+    <form method="get" action="{% url 'conta_a_pagar_list' %}" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="start_date">Data Inicial:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="end_date">Data Final:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="descricao">Descrição:</label>
+                    <input type="text" id="descricao" name="descricao" class="form-control" placeholder="Descrição" value="{{ request.GET.descricao }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="">Todos</option>
                         <option value="True" {% if request.GET.status == 'True' %}selected{% endif %}>Pago</option>
                         <option value="False" {% if request.GET.status == 'False' %}selected{% endif %}>Pendente</option>
                     </select>
-                    <button class="btn btn-primary" type="submit">Pesquisar
-                        <i class="bi bi-search"></i>
-                    </button>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
 
+    <!-- Data Table -->
     <div class="table-responsive">
         <table class="table table-striped table-dark table-bordered">
             <thead>
                 <tr>
-                    <th><a href="?sort_by=contas.id" class="text-light">ID</a></th>
-                    <th><a href="?sort_by=contas.descricao" class="text-light">Descrição</a></th>
-                    <th><a href="?sort_by=contas.valor" class="text-light">Valor</a></th>
-                    <th><a href="?sort_by=contas.data_emissao" class="text-light">Emissão</a></th>
-                    <th><a href="?sort_by=contas.data_vencimento" class="text-light">Vencimento</a></th>
-                    <th><a href="?sort_by=status_recebimento" class="text-light">Status</a></th>
+                    <th><a href="?sort_by=id" class="text-light">ID</a></th>
+                    <th><a href="?sort_by=descricao" class="text-light">Descrição</a></th>
+                    <th><a href="?sort_by=valor" class="text-light">Valor</a></th>
+                    <th><a href="?sort_by=data_emissao" class="text-light">Emissão</a></th>
+                    <th><a href="?sort_by=data_vencimento" class="text-light">Vencimento</a></th>
+                    <th><a href="?sort_by=status_pagamento" class="text-light">Status</a></th>
                     <th>Ações</th>
-                <tr>
+                </tr>
             </thead>
             <tbody>
                 {% for conta in contas_a_pagar %}
@@ -94,27 +104,28 @@ Contas a Pagar
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7">Nenhuma conta a pagar encontrada.</td>
+                    <td colspan="7" class="text-center">Nenhuma conta a pagar encontrada.</td>
                 </tr>
                 {% endfor %}
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan=""><strong>Totais:</strong></td>
+                    <td colspan="2"><strong>Totais:</strong></td>
                     <td><strong>{{ total_contas }}</strong></td>
                     <td><strong>{{ total_valor|currency_reais }}</strong></td>
-
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
                 </tr>
             </tfoot>
         </table>
     </div>
-    <div class="col-md-6">
+
+    <!-- Export Button -->
+    <div class="text-end mb-4">
         <a href="{% url 'exportar_contaapagar_excel' %}" class="btn btn-info">
             <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
         </a>
     </div>
 
-    {% include 'parcials/pagination.html' %}
-
-    {% endblock %}
+    <!-- Pagination -->
+{% include 'parcials/pagination.html' %}
+{% endblock %}

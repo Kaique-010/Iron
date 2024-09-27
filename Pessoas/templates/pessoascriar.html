@@ -2,28 +2,79 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Criar Pessoa
+Criar Pessoa
 {% endblock %}
 
 {% block content %}
 <style>
+    .card-title {
+        color: rgb(225, 211, 193);
+        /* Define a cor do texto */
+        text-align: center;
+        /* Centraliza o texto, se desejar */
+    }
+
     .card {
         border-width: 2px;
-        border-color: #5d88b6; /* Cor da borda */
+        border-color: #5d88b6;
         border-style: solid;
-        background: linear-gradient(#0f0f0f, #53524f); /* Gradiente de fundo */
+        background: linear-gradient(#0f0f0f, #53524f);
     }
+
     .form-control {
         border-width: 2px;
-        border-color: #5d88b6; /* Cor da borda */
-        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
+        border-color: #5d88b6;
+        border-style: solid;
     }
+
     h3 {
         text-align: center;
         color: rgb(225, 211, 193);
     }
+
+    h4 {
+        text-align: center;
+        color: rgb(225, 211, 193);
+    }
+
     .container {
         margin-top: 2rem;
+    }
+
+    /* Estilo adicional para o grid */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    /* Estilos para as abas */
+    .tab-buttons {
+        display: flex;
+        cursor: pointer;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .tab-button {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        cursor: pointer;
+    }
+
+    .tab-button.active {
+        border-bottom: 1px solid transparent;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 0 0 5px 5px;
+    }
+
+    .tab-content.active {
+        display: block;
     }
 </style>
 
@@ -31,14 +82,178 @@
     <div class="card">
         <div class="card-body">
             <h3 class="card-title">Cadastrar Pessoa <i class="bi bi-person-check fs-4"></i></h3>
-            
+
+            <!-- Abas -->
+            <div class="tab-buttons">
+                <div class="tab-button active" onclick="openTab(event, 'pessoal')">Informações Pessoais</div>
+                <div class="tab-button" onclick="openTab(event, 'endereco')">Informações de Endereço</div>
+            </div>
+
+            <!-- Conteúdo das Abas -->
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+
+                <div id="pessoal" class="tab-content active">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.nome.label_tag }}
+                                {{ form.nome }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.rg.label_tag }}
+                                {{ form.rg }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.cpf.label_tag }}
+                                {{ form.cpf }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.cnpj.label_tag }}
+                                {{ form.cnpj }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.ie.label_tag }}
+                                {{ form.ie }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.telefone.label_tag }}
+                                {{ form.telefone }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="endereco" class="tab-content">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.cep.label_tag }}
+                                {{ form.cep }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.logradouro.label_tag }}
+                                {{ form.logradouro }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.numero.label_tag }}
+                                {{ form.numero }}
+                            </div>
+                        </div>
+                    </div> <!-- Fecha o primeiro row -->
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.bairro.label_tag }}
+                                {{ form.bairro }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.cidade.label_tag }}
+                                {{ form.cidade }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.estado.label_tag }}
+                                {{ form.estado }}
+                            </div>
+                        </div>
+                    </div> <!-- Fecha o segundo row -->
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.foto.label_tag }}
+                                {{ form.foto }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" value="Cadastrar" class="btn btn-primary mt-3">
             </form>
         </div>
-        <a href="{% url 'pessoaslistas' %}" class="btn btn-secondary mt-3">Voltar Para Pessoas</a>
+        <a href="{% url 'pessoaslistas' %}" class="btn btn-secondary mt-3">Voltar Para a lista de Pessoas</a>
     </div>
 </div>
+
+<script>
+    function openTab(event, tabId) {
+        // Ocultar todos os conteúdos das abas
+        var contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        // Remover a classe ativa de todos os botões
+        var buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(button => button.classList.remove('active'));
+
+        // Mostrar o conteúdo da aba selecionada
+        document.getElementById(tabId).classList.add('active');
+
+        // Adicionar a classe ativa ao botão da aba selecionada
+        event.currentTarget.classList.add('active');
+    }
+
+    // Adiciona a função de buscar CEP
+    function buscarCEP() {
+        var cep = document.getElementById('id_cep').value;
+
+        if (cep.length === 8) {
+            var url = 'https://viacep.com.br/ws/' + cep + '/json/';
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.erro) {
+                        document.getElementById('id_logradouro').value = data.logradouro;
+                        document.getElementById('id_bairro').value = data.bairro;
+                        document.getElementById('id_cidade').value = data.localidade;
+                        document.getElementById('id_estado').value = data.uf;
+                    } else {
+                        alert('CEP não encontrado!');
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao buscar o CEP. Tente novamente.');
+                    console.error(error);
+                });
+        } else {
+            alert('CEP inválido. O CEP deve conter 8 dígitos.');
+        }
+    }
+
+    // Adiciona um evento para chamar a função buscarCEP quando o campo de CEP perder o foco
+    document.getElementById('id_cep').addEventListener('blur', buscarCEP);
+</script>
 {% endblock %}
