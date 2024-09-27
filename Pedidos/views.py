@@ -338,7 +338,7 @@ def dashboard(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT DISTINCT vendedor_id, nome_vendedor
-            FROM pedidos_pedido
+            FROM Pedidos_pedido
             WHERE status != 'Cancelado'
             ORDER BY nome_vendedor ASC;
         """)
@@ -352,7 +352,7 @@ def dashboard(request):
             COUNT(*) AS "Total_Pedidos",
             SUM(total) AS "Total_Valor_Pedido"
         FROM 
-            pedidos_pedido
+            Pedidos_pedido
         WHERE 
             status != 'Cancelado'
     """
