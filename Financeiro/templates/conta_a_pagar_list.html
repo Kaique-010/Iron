@@ -53,8 +53,8 @@ Contas a Pagar
                     <label for="status">Status:</label>
                     <select id="status" name="status" class="form-select">
                         <option value="">Todos</option>
-                        <option value="True" {% if request.GET.status=="True" %}selected{% endif %}>Pago</option>
-                        <option value="False" {% if request.GET.status=="False" %}selected{% endif %}>Pendente</option>
+                        <option value="True" {% if request.GET.status == "True" %}selected{% endif %}>Pago</option>
+                        <option value="False" {% if request.GET.status == "False" %}selected{% endif %}>Pendente</option>
                     </select>
                 </div>
             </div>
