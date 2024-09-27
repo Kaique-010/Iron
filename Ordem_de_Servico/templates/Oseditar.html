@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Editar Ordem de Serviço
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3 class="display-8">Editar Ordem de Serviço</h3>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <br>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_numero_os" class="form-label">Número da O.S:</label>
+                        {{ form.numero_os|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="id_cliente" class="form-label">Cliente:</label>
+                        {{ form.cliente|add_class:"form-control" }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_data_abertura" class="form-label">Data de Abertura:</label>
+                        {{ form.data_abertura|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_data_fechamento" class="form-label">Data de Fechamento:</label>
+                        {{ form.data_fechamento|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Itens da Ordem de Serviço</h4>
+                {{ formset.management_form }}
+                <div id="item_formset">
+                    {% for form in formset %}
+                        <div class="item-row">
+                            {{ form.as_p }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Ordem de Serviço</button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'Oslistas' %}" class="btn btn-secondary mt-2">Voltar Para Ordens de Serviço</a>
+</div>  
+
+{% endblock %}

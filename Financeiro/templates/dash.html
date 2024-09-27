@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+        color: antiquewhite;
+    }
+    h6 {
+        text-align: center;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: 300px !important;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+
+    .card-header {
+        font-weight: bold;
+    }
+
+    .card {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;
+    }
+    .bi-graph-up {
+        color: aqua;
+    }
+    .bi-graph-down {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-currency-exchange {
+        color: rgb(255, 249, 65);
+    }
+</style>
+<br>
+<div class="container mt-4">
+    <div class="card">
+    <h3>Fluxo de Caixa <i class="bi bi-calculator"></i></h3>
+    <br>
+    
+    <!-- Formulário de seleção de período -->
+    <div class="container-fluid mb-4">
+        <div class="d-flex justify-content-center">
+            <form method="GET" action="{% url 'dash' %}" class="w-75">
+                <div class="row mb-3">
+                    <div class="col-md-5">
+                        {{ form.start_date.label_tag }} {{ form.start_date }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form.end_date.label_tag }} {{ form.end_date }}
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Atualizar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h6>Período: {{ financeiro_dash.start_date }} a {{ financeiro_dash.end_date }}</h6>
+    <br>
+
+    <div class="container-fluid">
+        <!-- Informações Gerais -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-header">Entradas  <i class="bi bi-graph-up"></i></div>
+                    <div class="card-body">
+                        <h5 class="card-title">R$ {{ financeiro_dash.entradas|floatformat:2 }}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger mb-3">
+                    <div class="card-header">Saídas  <i class="bi bi-graph-down"></i></div>
+                    <div class="card-body">
+                        <h5 class="card-title">R$ {{ financeiro_dash.saidas|floatformat:2 }}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-header">Saldo Final  <i class="bi bi-currency-exchange"></i></div>
+                    <div class="card-body">
+                        <h5 class="card-title">R$ {{ financeiro_dash.saldo|floatformat:2 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Gráficos -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="entradasSaidasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="saldoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gráfico de Entradas e Saídas
+            var ctxEntradasSaidas = document.getElementById('entradasSaidasChart').getContext('2d');
+            new Chart(ctxEntradasSaidas, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Entradas', 'Saídas'],
+                    datasets: [{
+                        data: [
+                        {{ financeiro_dash.entradas }}, // Entradas
+                        {{ financeiro_dash.saidas }}, // Saídas
+                        ],
+                        backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': R$ ' + Math.abs(tooltipItem.raw).toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+    
+            // Gráfico de Saldo
+            var ctxSaldo = document.getElementById('saldoChart').getContext('2d');
+            new Chart(ctxSaldo, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Saldo inicial', 'Entradas', '','Saídas', 'Saldo final'],
+                        datasets: [{
+                            label: 'Valores',
+                            data: [
+                                {{ financeiro_dash.saldo_inicial }},  // Saldo inicial
+                                {{ financeiro_dash.entradas }},       // Entradas
+                                {{ financeiro_dash.saidas }},  
+                                {{ financeiro_dash.saidas }},        // Saídas
+                                {{ financeiro_dash.saldo }}
+                            ],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.2)',  // Saldo inicial
+                            'rgba(54, 162, 235, 0.2)',  // Entradas
+                            'rgba(54, 162, 235, 0.2)',  // Saídas
+                            'rgba(54, 162, 235, 0.2)',  // Saídas
+                            'rgba(255, 205, 86, 0.2)'   // Saldo Final
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',    // Saldo inicial
+                            'rgba(54, 162, 235, 1)',    // Entradas
+                            'rgba(255, 99, 132, 1)',    // Saídas
+                            'rgba(255, 99, 132, 1)',    // Saídas
+                            'rgba(255, 205, 86, 1)'     // Saldo Final
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': R$ ' + Math.abs(tooltipItem.raw).toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Categorias'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    {% endblock %}

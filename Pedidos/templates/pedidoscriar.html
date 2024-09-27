@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+{% block title %}Novo Pedido{% endblock %}
+{% block content %}
+
+<style>
+  h3 {
+    text-align: center;
+    color: #ffffff;
+  }
+
+  .card {
+    border-width: 2px;
+    border-color: #5d88b6;
+    border-style: solid;
+    background: linear-gradient(#0f0f0f, #53524f);
+  }
+
+  .form-control {
+    border-width: 2px;
+    border-color: #5d88b6;
+    border-style: solid;
+  }
+
+  .item-container {
+    margin-top: 1rem;
+  }
+
+  .item-container .item-row {
+    margin-bottom: 1rem;
+  }
+
+  .row-spacing {
+    margin-bottom: 20px;
+    /* ou ajuste conforme necessário */
+  }
+
+  .text-right {
+    text-align: right;
+  }
+</style>
+
+<br>
+
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">
+        Pedido de venda <i class="bi bi-cart-plus" style="font-size: 2rem"></i>
+      </h3>
+
+      <form method="post" id="pedido-form">
+        {% csrf_token %}
+
+        <div class="container">
+          <div class="row row-spacing">
+            <div class="col-md-3">
+              <label>Data:</label>
+              <input type="date" name="data" class="form-control" />
+            </div>
+          </div>
+          <!-- Status e Cliente lado a lado -->
+          <div class="row row-spacing">
+            <div class="col-md-6">
+              <label>Status:</label>
+              <select name="status" class="form-control">
+                {% for status in pedido_status %}
+                <option value="{{ status.0 }}">{{ status.1 }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label>Cliente:</label>
+              <select name="cliente" class="form-control">
+                {% for cliente in clientes %}
+                <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="row row-spacing"></div>        
+        <div class="row row-spacing"></div>
+        <!-- Itens do pedido -->
+        <h3>Itens do pedido</h3>
+        <div class="row row-spacing"></div>
+        <div id="itens-container" class="container">
+          <div class="row row-spacing">
+            <!-- Cabeçalhos das colunas -->
+            <div class="col-md-4">
+              <label>Produto</label>
+            </div>
+            <div class="col-md-4">
+              <label>Quantidade</label>
+            </div>
+            <div class="col-md-4">
+              <label>Preço Unitário</label>
+            </div>
+          </div>
+
+          <div class="item-row">
+            <div class="row row-spacing">
+              <div class="col-md-4">
+                <input id="produto-autocomplete-0" class="form-control produto-autocomplete" data-index="0" />
+                <input type="hidden" name="itens[0][produto_id]" class="produto-id" />
+              </div>
+              <div class="col-md-4">
+                <input type="number" name="itens[0][quantidade]" class="form-control" />
+              </div>
+              <div class="col-md-4">
+                <input type="number" name="itens[0][preco_unitario]" class="form-control" step="0.01" />
+              </div>
+            </div>
+          </div>
+        </div>
+       
+         <div class="row row-spacing"></div>
+         <div class="row row-spacing"></div>
+         <div class="row row-spacing"></div>
+
+        <div class="row row-spacing">
+
+          <div class="col-md-9 text-right">
+            <strong>Total: R$</strong>
+          </div>
+
+          <div class="col-md-3">
+            <input type="text" id="total" class="text-right" readonly />
+          </div>
+        </div>
+
+        <!-- Adicionar e Salvar -->
+        <br>
+        <button type="button" onclick="addItem()" class="btn btn-secondary">Adicionar Item</button>
+        <button type="submit" class="btn btn-primary">Salvar Pedido</button>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script>
+  $(document).ready(function () {
+    function setupAutocomplete(index) {
+      $("#produto-autocomplete-" + index).autocomplete({
+        source: function (request, response) {
+          $.ajax({
+            url: '{% url "buscar_produtos" %}',
+            dataType: 'json',
+            data: {
+              q: request.term,
+            },
+            success: function (data) {
+              response(
+                data.map(function (item) {
+                  return {
+                    label: item.nome,
+                    value: item.id,
+                  };
+                })
+              );
+            },
+          });
+        },
+        select: function (event, ui) {
+          $(this).siblings('.produto-id').val(ui.item.value);
+        },
+      });
+    }
+
+    function addItem() {
+      var container = document.getElementById("itens-container");
+      var itemCount = container.querySelectorAll(".item-row").length;
+
+      var newItemHtml = `
+        <div class="item-row">
+          <div class="row">
+            <div class="col-md-4">
+              <input id="produto-autocomplete-${itemCount}" class="form-control produto-autocomplete" />
+              <input type="hidden" name="itens[${itemCount}][produto_id]" class="produto-id" />
+            </div>
+            <div class="col-md-4">
+              <input type="number" name="itens[${itemCount}][quantidade]" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <input type="number" name="itens[${itemCount}][preco_unitario]" class="form-control" step="0.01" />
+            </div>
+          </div>
+        </div>`;
+
+      container.insertAdjacentHTML('beforeend', newItemHtml);
+      setupAutocomplete(itemCount);
+    }
+
+    function updateTotal() {
+      var total = 0;
+      $("#itens-container .item-row").each(function () {
+        var quantidade = parseFloat($(this).find('input[name$="[quantidade]"]').val()) || 0;
+        var precoUnitario = parseFloat($(this).find('input[name$="[preco_unitario]"]').val()) || 0;
+        total += quantidade * precoUnitario;
+      });
+      $("#total").val(total.toFixed(2));
+    }
+
+    setupAutocomplete(0);
+
+    $(document).on('input', 'input[name$="[quantidade]"], input[name$="[preco_unitario]"]', function () {
+      updateTotal();
+    });
+
+    $(document).on("click", ".btn-remove-item", function (event) {
+      $(event.target).closest(".item-row").remove();
+      updateTotal();
+    });
+
+    window.addItem = addItem;
+  });
+</script>
+
+{% endblock %}

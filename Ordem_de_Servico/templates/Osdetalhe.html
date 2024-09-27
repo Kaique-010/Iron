@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Detalhe de Os
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-2">
+        <div class="col-md-12">
+            <h3 class="display-8">Detalhes:</h3>
+        </div>
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Nº O.S: {{ object.id }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Cliente: {{ object.cliente }}</p>
+            <p class="card-text">Data de Abertura: {{ object.data_abertura }}</p><Br><Br>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço Unitário</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in object.itens.all %}              
+                    <tr>
+                        <td>{{ item.peca.nome }}</td>
+                        <td>{{ item.peca_quantidade }}</td>
+                        <td>{{ item.peca_unitario|floatformat:2 }}</td>
+                        <td>{{ item.peca_total|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">Nenhum item encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p class="text-end">
+                <strong>Total de Quantidade:</strong>
+                {% if total_quantidade %}
+                {{ total_quantidade }}
+                {% else %}
+                Não disponível
+                {% endif %}
+            </p>
+
+            <p class="text-end">
+                <strong>Total da O.S:</strong>
+                {% if total_valor %}
+                R$ {{ total_valor|floatformat:2 }}
+                {% else %}
+                Não disponível
+                {% endif %}
+            </p>
+
+
+        </div>
+    </div>
+
+    <br>
+    <a href="{% url 'Oslistas' %}" class="btn btn-secondary mt-2 float-end">
+        <i class="bi bi-arrow-left"></i> Voltar à Lista
+    </a>
+</div>
+<br><br><br>
+{% endblock %}

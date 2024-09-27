@@ -4,7 +4,7 @@ from . import models
 class Produtos(forms.ModelForm):
     class Meta:
         model = models.Produtos
-        fields = ['nome', 'localidade', 'familia', 'grupo', 'marca', 'tamanho', 'peso', 'quantidade', 'descricao', 'imagem']
+        fields = ['nome', 'localidade', 'familia', 'grupo', 'marca', 'tamanho', 'peso', 'quantidade', 'descricao', 'imagem', 'ativo']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome Produto'}),
             'localidade': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Localidade'}),
@@ -16,6 +16,7 @@ class Produtos(forms.ModelForm):
             'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantidade', 'maxlength': '6'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descrição', 'rows': 2}),
             'imagem': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'ativo': forms.NullBooleanSelect()
         }
 
     def clean_nome(self):
@@ -26,3 +27,5 @@ class Produtos(forms.ModelForm):
     def clean_descricao(self):
         data = self.cleaned_data.get('descricao')
         return data.upper() if data else data
+    
+

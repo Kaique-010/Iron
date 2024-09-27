@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Contato{% endblock %}
+
+{% block content %}
+<br>
+<br>
+<br>
+<div class="container mt-5">
+    <h2 class="mb-4">Realizar Contato - REF: Pedido {{ pedido.numero_pedido }}</h2>
+    <div class="card p-4">
+        <p><strong>Cliente:</strong> {{ pedido.nome_cliente }}</p>
+        <p><strong>Telefone:</strong> {{ pedido.telefone_cliente }}</p>
+        <p><strong>Email:</strong> {{ pedido.email_cliente }}</p>
+        <p><strong>Vendedor:</strong> {{ pedido.nome_vendedor }}</p>
+        <p><strong>Data do Pedido:</strong> {{ pedido.data }}</p>
+   
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="notas"><strong>Notas sobre o contato:</strong></label>
+                <textarea id="notas" name="notas" class="form-control" rows="6">{{ pedido.notas_contato }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Salvar Notas</button>
+        </form>
+   
+        <a href="{% url 'crm' %}" class="btn btn-secondary mt-3">Voltar</a>
+    </div>
+</div>
+{% endblock %}

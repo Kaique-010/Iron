@@ -1,44 +1,158 @@
-{% load custom_filters %}
-{% load static %}
+{% load custom_filters %} {% load static %}
 
 <!DOCTYPE html>
 <html lang="pt-br" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> {% block title %} {% endblock %}</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Carregando Bootstrap do CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Carregando Bootstrap Icons do CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Carregando outras bibliotecas do CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<<<<<<< HEAD
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- FullCalendar CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Inclua jQuery UI -->
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  </head>
+
+  <body>
+=======
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+>>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
     {% include 'parcials/header.html' %}
 
     <div class="container-fluid">
-        {% include 'parcials/sidebar.html' %}
+      {% include 'parcials/sidebar.html' %}
 
-
-        <div class="col py-3">
-            <div class="container mt-4">
-                <main>
-                    {% block content %}
-                    {% endblock %}
-                </main>
-            </div>
+      <div class="col py-3">
+        <div class="container mt-4">
+          <main>{% block content %}{% endblock %}</main>
         </div>
+      </div>
     </div>
 
+    <!-- Modal para próximos eventos -->
+    {% if mostrar_modal %}
+    <div
+      class="modal fade"
+      id="eventosModal"
+      tabindex="-1"
+      aria-labelledby="eventosModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="eventosModalLabel">Próximos Eventos</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="eventos-list">
+            <!-- Eventos serão carregados aqui pelo JavaScript -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
-</body>
+    <!-- Carregando JavaScript personalizado -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Função para buscar eventos futuros e atualizar o DOM
+        function carregarEventos() {
+          fetch('{% url "eventos_futuros_json" %}')
+            .then((response) => response.json())
+            .then((data) => {
+              const eventosList = document.getElementById('eventos-list')
+              eventosList.innerHTML = ''
 
+              if (data.eventos.length > 0) {
+                data.eventos.forEach((evento) => {
+                  const eventoItem = document.createElement('div')
+                  eventoItem.classList.add('alert', 'alert-info', 'mb-2')
 
-{% include 'parcials/footer.html' %}
+                  eventoItem.innerHTML = `
+                                    <strong>${evento.titulo}</strong><br>
+                                    Início: ${new Date(
+                                      evento.data_inicio
+                                    ).toLocaleString()} +GMT<br>
+                                    Horário: ${evento.horario}<br>
+                                    Local: ${
+                                      evento.local || 'Não especificado'
+                                    }<br>
+                                    Descrição: ${
+                                      evento.descricao || 'Sem descrição'
+                                    }
+                                `
 
+                  eventosList.appendChild(eventoItem)
+                })
+
+                // Exibir o modal se houver eventos
+                var eventosModal = new bootstrap.Modal(
+                  document.getElementById('eventosModal')
+                )
+                eventosModal.show()
+              } else {
+                eventosList.innerHTML =
+                  '<div class="alert alert-warning">Nenhum evento futuro para exibir.</div>'
+              }
+            })
+            .catch((error) => console.error('Erro ao carregar eventos:', error))
+        }
+
+        // Carregar eventos ao iniciar a página
+        carregarEventos()
+      })
+    </script>
+
+    {% include 'parcials/footer.html' %}
+  </body>
 </html>

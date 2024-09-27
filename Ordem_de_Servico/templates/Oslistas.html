@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Lista de Ordens de Serviço
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        color: antiquewhite;
+    }
+</style>
+<br>
+<div class="container-fluid mt-4">
+    <div class="card" style="background-color: rgb(28, 33, 35);">
+        <center>
+            <h3>Lista de Ordens de Serviço</h3>
+            <i class="bi bi-hammer" style="font-size: 2rem;"></i>
+            
+        </center>
+    </div>
+    <br>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <a href="{% url 'Oscriar' %}" class="btn btn-success">
+                <i class="bi bi-plus"></i> Nova O.S
+            </a>
+        </div>
+        <div class="col-md-6">
+            <form method="get" action="{% url 'Oslistas' %}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="numero_os" placeholder="O.S" value="{{ request.GET.numero_os }}">
+                    <button class="btn btn-primary" type="submit">Pesquisar
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Ordens de Serviço -->
+    <div class="table-responsive">
+        <table class="table table-striped table-dark table-bordered">
+            <thead>
+                <tr>
+                    <th>Número da Ordem</th>
+                    <th>Data de Abertura</th>
+                    <th>Cliente</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ordem in Os %}
+                <tr>
+                    <td>{{ ordem.numero_os }}</td>
+                    <td>{{ ordem.data_abertura }}</td>
+                    <td>{{ ordem.cliente }}</td>
+                    <td>
+                        <a href="{% url 'Osdetalhe' ordem.id %}" class="btn btn-info">Detalhes</a>
+                        <a href="{% url 'Oseditar' ordem.id %}" class="btn btn-warning">Editar</a>
+                        <a href="{% url 'Osexcluir' ordem.id %}" class="btn btn-danger">Deletar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Nenhuma ordem de serviço encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <a href="{% url 'exportar_os_excel' %}" class="btn btn-info">
+            <i class="bi bi-file-earmark-excel"></i> Exportar para Excel
+        </a>
+    </div>
+    <!-- Paginação -->
+    <div class="pagination">
+        {% if is_paginated %}
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">« primeira</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">próxima</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">última »</a>
+                {% endif %}
+            </span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

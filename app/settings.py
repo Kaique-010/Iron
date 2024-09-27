@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 import os
 
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sequences.apps.SequencesConfig',
     'app',
     'Marcas',
     'Familias',
@@ -48,6 +50,12 @@ INSTALLED_APPS = [
     'Entradas_Produtos',
     'Saidas_Produtos',
     'Financeiro',
+    'Agenda',
+    'Pedidos',
+    'Ordem_de_Servico',
+    'django_cron',
+    'celery',
+    'django_celery_beat',
 
 ]
 
@@ -80,6 +88,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'app.wsgi.application'
+
+CRON_CLASSES = [
+    'Pedidos.cron.EnviarEmailsClientesInativosCronJob',
+]
 
 
 # Database
@@ -135,3 +147,35 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'leokaique7@gmail.com'
+EMAIL_HOST_PASSWORD = 'jthdrawdbdulidcz' 
+DEFAULT_FROM_EMAIL = 'leokaique7@gmail.com'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

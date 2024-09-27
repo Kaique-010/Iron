@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Lista de Eventos
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        color: rgb(225, 211, 193);
+    }
+    .bi-calendar{
+        color: blanchedalmond;
+    }
+</style>
+<br>
+<br>
+<style>
+    h3 {
+        color: antiquewhite;
+    }
+</style>
+<div class="container-fluid"></div>
+<div class="card" style="background-color: rgb(28, 33, 35);">
+    <center>
+        <h3>Lista de Eventos </h3><i class="bi bi-calendar" style="font-size: 2rem;"></i>
+    </center>
+</div>
+<div class="container-fluid"></div>
+<div class="col md-4">
+    <div class="row mb-4"></div>
+    <a href="{% url 'criar_evento' %}" class="btn btn-success float-end">
+        <i class="bi bi-plus"></i> Novo Evento
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+      
+        <form method="get" action="{% url 'listar_eventos' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="titulo" placeholder="titulo"
+                    value="{{ request.GET.titulo }}">
+                <button class="btn btn-primary" type="submit">Pesquisar
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Título</th>
+                <th>Horário</th>
+                <th>Descrição</th>
+                <th>Local</th>
+                <th>Responsável</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evento in Eventos %}
+            <tr>
+                <td>{{ evento.id }}</td>
+                <td>{{ evento.data_inicio }}</td>
+                <td>{{ evento.titulo }}</td>
+                <td>{{ evento.horario }}</td>
+                <td>{{ evento.descricao }}</td>
+                <td>{{ evento.local }}</td>
+                <td>{{ evento.responsavel }}</td>
+
+                <td>
+                    <a href="{% url 'detalhe_evento' evento.id %}" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'editar_evento' evento.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'excluir_evento' evento.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Nenhum Evento encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="alertas"></div> <!-- Div para mostrar alertas -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var now = new Date('{{ now }}');
+        var eventos = [
+            {% for evento in Eventos %}
+            {
+                id: {{ evento.id }},
+                titulo: "{{ evento.titulo }}",
+                data_inicio: "{{ evento.data_inicio }}",
+                horario: "{{ evento.horario }}"
+            },
+            {% endfor %}
+        ];
+
+        var alertas = [];
+        eventos.forEach(function(evento) {
+            var eventoData = new Date(evento.data_inicio + 'T' + evento.horario);
+            var tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            if (now <= eventoData && eventoData <= tomorrow) {
+                alertas.push(evento);
+            }
+        });
+
+        if (alertas.length > 0) {
+            var alertDiv = document.getElementById('alertas');
+            var alertHTML = '<div class="alert alert-warning" role="alert"><strong>Atenção!</strong> Há eventos próximos:<ul>';
+            alertas.forEach(function(alerta) {
+                alertHTML += '<li>' + alerta.titulo + ' - ' + alerta.data_inicio + ' às ' + alerta.horario + '</li>';
+            });
+            alertHTML += '</ul></div>';
+            alertDiv.innerHTML = alertHTML;
+        }
+    });
+</script>
+
+{% include 'parcials/pagination.html' %}
+
+{% endblock %}

@@ -15,11 +15,12 @@ class Base(models.Model):
     class Meta:
         abstract = True  
 
+
 class Produtos(Base):
     nome = models.CharField('Nome', max_length=50)
     localidade = models.ForeignKey(Localidade, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
-    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name='produtos')
-    grupo = models.ForeignKey(Grupo, on_delete=models.PROTECT, related_name='produtos')
+    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
+    grupo = models.ForeignKey(Grupo, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
     marca = models.ForeignKey(Marcas, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
     imagem = StdImageField('Imagem', upload_to='produtos', variations={'thumbnail': (150, 150)}, blank=False, null=False)
     tamanho = models.CharField('Tamanho', max_length=10, blank=True, null=True)
@@ -43,6 +44,7 @@ class Produtos(Base):
             return "No Image"
 
     imagem_tag.short_description = 'Imagem'
+
 
 class Precos(models.Model):
     produto = models.ForeignKey(Produtos, on_delete=models.PROTECT, related_name='precos')

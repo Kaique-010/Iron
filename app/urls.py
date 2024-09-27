@@ -13,10 +13,13 @@ urlpatterns = [
     path('', include ('Grupo.urls')),
     path('', include ('Localidades.urls')),
     path('', include ('Pessoas.urls')),
+    path('', include('Pedidos.urls')),
     path('', include ('Produtos.urls')),
     path('', include ('Entradas_Produtos.urls')),
     path('', include ('Saidas_Produtos.urls')),
     path('', include ('Financeiro.urls')),
+    path('', include ('Agenda.urls')),
+    path('', include ('Ordem_de_Servico.urls')),
 
 ]
 

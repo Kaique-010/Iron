@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Deletar Evento
+{% endblock %}
+
+{% block content %}
+
+<div class="container-mt-4">
+    <h3 class="display-8"> Excluir Evento</h3>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text">Tem Certeza Que Deseja Excluir o Evento  <strong>{{ object.titulo }}</strong></p>
+            <form method="post" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-danger mt-3"> Excluir Evento </button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'listar_eventos'%}" class="btn btn-secondary mt2">Voltar Para Eventos</a>
+</div>  
+
+{% endblock %}

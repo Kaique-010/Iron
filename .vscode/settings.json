@@ -1,14 +1,3 @@
 {
-    "sqltools.connections": [
-        {
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 5433,
-            "askForPassword": true,
-            "driver": "PostgreSQL",
-            "name": "iron",
-            "database": "iron",
-            "username": "postgres"
-        }
-    ]
+    "sqltools.connections": []
 }

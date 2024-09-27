@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Criar Evento
+{% endblock %}
+<br>
+<br>
+{% block content %}
+<br>
+<br>
+<style>
+    h3{
+        text-align: center;
+    }
+    .form {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
+    }
+    .card {
+        border-width: 2px;
+        border-color: #5d88b6; /* Cor da borda */
+        border-style: solid;
+        background: linear-gradient(#0f0f0f, #53524f); /* Gradiente de fundo */
+    }
+</style>
+</style>
+<div class="card">
+<div class="container-mt-4">
+    <h3 class="display-8"> Registrar Evento  <i class="bi bi-calendar fs-4"></i></h3>
+</div>
+</div>
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary"> Salvar</button>
+            </form>
+        </div>  
+    </div>  
+    <a href="{% url 'listar_eventos'%}" class="btn btn-secondary mt2">Voltar Para Eventos</a>
+</div>  
+
+{% endblock %}
