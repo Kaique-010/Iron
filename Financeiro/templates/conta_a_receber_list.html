@@ -20,7 +20,6 @@ Contas a Receber
         <a href="{% url 'conta_a_receber_create' %}" class="btn btn-success float-end">
             <i class="bi bi-plus"></i> Adicionar Conta
         </a>
-<<<<<<< HEAD
     </div>
     <br>
     <br>
@@ -30,31 +29,22 @@ Contas a Receber
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="start_date">Data Inicial:</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
-=======
-
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <form method="get" action="{% url 'conta_a_receber_list' %}">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="descricao" placeholder="Descrição" value="{{ request.GET.descricao }}">
-                    <button class="btn btn-primary" type="submit">Pesquisar
-                        <i class="bi bi-search"></i>
-                    </button>
->>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
+                    <input type="date" id="start_date" name="start_date" class="form-control"
+                        value="{{ request.GET.start_date }}">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="end_date">Data Final:</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                    <input type="date" id="end_date" name="end_date" class="form-control"
+                        value="{{ request.GET.end_date }}">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="descricao">Descrição:</label>
-                    <input type="text" id="descricao" name="descricao" class="form-control" placeholder="Descrição" value="{{ request.GET.descricao }}">
+                    <input type="text" id="descricao" name="descricao" class="form-control" placeholder="Descrição"
+                        value="{{ request.GET.descricao }}">
                 </div>
             </div>
             <div class="col-md-3">
@@ -62,8 +52,8 @@ Contas a Receber
                     <label for="status">Status:</label>
                     <select id="status" name="status" class="form-select">
                         <option value="">Todos</option>
-                        <option value="True" {% if request.GET.status == 'True' %}selected{% endif %}>Recebido</option>
-                        <option value="False" {% if request.GET.status == 'False' %}selected{% endif %}>Pendente</option>
+                        <option value="True" {% if request.GET.status=='True' %}selected{% endif %}>Recebido</option>
+                        <option value="False" {% if request.GET.status=='False' %}selected{% endif %}>Pendente</option>
                     </select>
                 </div>
             </div>
@@ -73,20 +63,12 @@ Contas a Receber
         </div>
     </form>
 
-<<<<<<< HEAD
     <!-- Data Table -->
-=======
-
->>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
     <div class="table-responsive">
         <table class="table table-striped table-dark table-bordered">
             <thead>
                 <tr>
-<<<<<<< HEAD
                     <th><a href="?sort_by=id" class="text-light">ID</a></th>
-=======
-                    <th><a href="?sort_by=conta.id" class="text-light">ID</a></th>
->>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
                     <th><a href="?sort_by=descricao" class="text-light">Descrição</a></th>
                     <th><a href="?sort_by=valor" class="text-light">Valor</a></th>
                     <th><a href="?sort_by=data_emissao" class="text-light">Data Emissão</a></th>
@@ -141,7 +123,6 @@ Contas a Receber
         </table>
     </div>
 
-<<<<<<< HEAD
     <!-- Export Button -->
     <div class="text-end mb-4">
         <a href="{% url 'exportar_contaareceber_excel' %}" class="btn btn-info">
@@ -150,7 +131,5 @@ Contas a Receber
     </div>
 
     <!-- Pagination -->
-=======
->>>>>>> b34d10c0cb1dfbd2d8e644eddc4530c550daca18
     {% include 'parcials/pagination.html' %}
-{% endblock %}
+    {% endblock %}
