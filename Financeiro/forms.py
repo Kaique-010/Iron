@@ -5,7 +5,8 @@ class ContaAPagarForm(forms.ModelForm):
     class Meta:
         model = ContaAPagar
         fields = [ 'status_pagamento','documento', 'descricao', 'parcela', 'valor',
-                   'data_emissao', 'data_vencimento', 'data_pagamento', 'pessoas', 'categorias', 'observacoes', 'usuario', 'forma_pagamento']
+                   'data_emissao', 'data_vencimento', 'data_pagamento', 'pessoas',
+                   'categorias', 'observacoes',  'forma_pagamento']
         widgets = {
             'documento': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Documento'}),
             'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição'}),
@@ -23,8 +24,10 @@ class ContaAPagarForm(forms.ModelForm):
 class ContaAReceberForm(forms.ModelForm):
     class Meta:
         model = ContaAReceber
-        fields = [ 'status_recebimento','documento', 'descricao', 'parcela', 'valor',
-                   'data_emissao', 'data_vencimento', 'data_recebimento','pessoas', 'categorias', 'observacoes', 'usuario', 'forma_recebimento']
+        fields = [ 'status_recebimento','documento', 'descricao', 'parcela', 'valor','data_emissao',
+                  'data_vencimento', 'data_recebimento','pessoas', 'categorias', 'observacoes',
+                  'forma_recebimento']
+        
         widgets = {
             'documento': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Documento'}),
             'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição'}),

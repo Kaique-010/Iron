@@ -1,14 +1,27 @@
+import uuid
 from django.db import models
 from django.db.models import signals
 from django.template.defaultfilters import slugify
 from stdimage import StdImageField
 from django.utils.html import mark_safe
+from app import settings
+from Empresas.models import Empresa
+
+
+class EmpresaManager(models.Manager):
+    def for_user(self, user):
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(empresa=user.empresa)
 
 class Base(models.Model):
-    criado = models.DateField('Data de Criação', auto_now_add=True)
-    modificado = models.DateField('Data de Modificação', auto_now=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    criado = models.DateField('Criado em', auto_now_add=True)
+    modificado = models.DateField('Atualização', auto_now=True)
     ativo = models.BooleanField('Ativo?', default=True)
 
+    
+    objects = EmpresaManager()
     class Meta:
         abstract = True
 
@@ -38,6 +51,7 @@ class Pessoas(Base):
     cidade = models.CharField(max_length=100, blank=True, null=True)
     estado = models.CharField(max_length=2, blank=True, null=True)
 
+
     def __str__(self):
         return self.nome
 
@@ -46,11 +60,16 @@ class Pessoas(Base):
             return mark_safe(f'<img src="{self.foto.url}" width="80" height="80" />')
         except AttributeError:
             return "No Image"
-        
+    @classmethod
+    def get_vendedores(cls, user=None):
+        if user:
+            return cls.objects.filter(usuario=user, classificacao='vendedor')
+        return cls.objects.none()
     class Meta:
         verbose_name = 'Pessoa'
         verbose_name_plural = 'Pessoas'
         ordering = ['id', 'criado', 'modificado']
+        db_table = 'pessoas'
 
 def pessoas_pre_save(sender, instance, **kwargs):
     if not instance.slug:

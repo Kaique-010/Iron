@@ -215,9 +215,31 @@
               <li>
                 <a class="dropdown-item" href="{% url 'dashboard' %}">PEDIDOS</a>
               </li>
+
             </ul>
-          </li>
-        </ul>
+          
+        </li>
+        
+        <!-- Menu de Usuários -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            USUÁRIOS
+            <i class="bi bi-person-check" style="font-size: 2rem"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li>
+              <a class="dropdown-item" href="{% url 'register_user' %}">Cadastro de Usuários</a>
+            </li>
+          </ul>
+        </li>
+
+        <br><br>
+        <li class="nav-item">
+          <form action="{% url 'logout' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Logout</button>
+          </form>
+        </li>
       </div>
     </div>
   </div>

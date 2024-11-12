@@ -18,7 +18,7 @@ class ContasAPagarAdmin(admin.ModelAdmin):
     list_display = (
         'data_emissao', 'data_vencimento', 'documento', 
         'parcela', 'valor', 'data_pagamento', 'status_pagamento',
-        'pessoas', 'categorias', 'observacoes', 'usuario', 'forma_pagamento'
+        'pessoas', 'categorias', 'observacoes', 'forma_pagamento',
     )
     search_fields = ('descricao', 'documento', 'pessoas__nome')
     list_filter = ('status_pagamento', 'forma_pagamento')
@@ -27,7 +27,7 @@ class ContasAReceberAdmin(admin.ModelAdmin):
     list_display = (
         'data_emissao', 'data_vencimento', 'documento', 
         'parcela', 'valor', 'data_recebimento', 'status_recebimento',
-        'pessoas', 'categorias', 'observacoes', 'usuario', 'forma_recebimento'
+        'pessoas', 'categorias', 'observacoes', 'forma_recebimento',
     )
     search_fields = ('descricao', 'documento', 'pessoas__nome')
     list_filter = ('status_recebimento', 'forma_recebimento')

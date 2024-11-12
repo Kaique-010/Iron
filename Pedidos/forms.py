@@ -1,13 +1,17 @@
 from django import forms
+from Empresas.models import Empresa
+from Financeiro.models import FormasRecebimento
 from .models import Pedido, ItemPedido
+from Pessoas.models import Pessoas
 
 
 class PedidoForm(forms.ModelForm):
+    
+    
     class Meta:
         model = Pedido
         fields = ['id', 'data', 'status', 'cliente', 'vendedor', 'financeiro', 'observacoes']
         widgets = {
-           
             'data': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'cliente': forms.Select(attrs={'class': 'form-control'}),
@@ -17,15 +21,21 @@ class PedidoForm(forms.ModelForm):
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
-        
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Passa o usuário explicitamente
+        super().__init__(*args, **kwargs)
 
-    def clean_numero_pedido(self):
+        if user:
+            self.fields['empresa'].queryset = Empresa.objects.filter(empresa=user.empresa)
+            self.fields['vendedor'].queryset = Pessoas.get_vendedores(user)
+            self.fields['financeiro'].queryset = FormasRecebimento.objects.all()  # Para garantir que todas as formas de recebimento sejam listadas
+    
+    def clean_id(self):
         data = self.cleaned_data.get('id')
-        if Pedido.objects.filter(id=data).exists():
+        if data and Pedido.objects.filter(id=data).exists():
             raise forms.ValidationError("Número do pedido já existe.")
         return data
-
-
+    
 class ItemPedidoForm(forms.ModelForm):
     class Meta:
         model = ItemPedido
@@ -35,7 +45,6 @@ class ItemPedidoForm(forms.ModelForm):
             'quantidade': forms.NumberInput(attrs={'min': 1}),
             'preco_unitario': forms.NumberInput(attrs={'min': 0}),
         }
-
 
 class CRMForm(forms.Form):
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))

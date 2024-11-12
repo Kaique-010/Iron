@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from Localidades.models import Localidade
 from Familias.models import Familia
@@ -6,14 +7,26 @@ from Marcas.models import Marcas
 from stdimage import StdImageField
 from django.utils.html import mark_safe
 from django.core.exceptions import ValidationError
+from app import settings
+from Empresas.models import Empresa
+
+
+class EmpresaManager(models.Manager):
+    def for_user(self, user):
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(empresa=user.empresa)
 
 class Base(models.Model):
-    criado = models.DateField('Data de Criação', auto_now_add=True) 
-    modificado = models.DateTimeField('Data de Modificação', auto_now=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    criado = models.DateField('Criado em', auto_now_add=True)
+    modificado = models.DateField('Atualização', auto_now=True)
     ativo = models.BooleanField('Ativo?', default=True)
 
+    
+    objects = EmpresaManager()
     class Meta:
-        abstract = True  
+        abstract = True
 
 
 class Produtos(Base):
@@ -27,12 +40,14 @@ class Produtos(Base):
     peso = models.DecimalField('Peso (em gramas)', max_digits=6, decimal_places=2, blank=False, null=False)
     quantidade = models.IntegerField(default=0)
     descricao = models.TextField('Descrição', max_length=100, blank= True, null= True)
+
     
 
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
         ordering = ['id', 'criado', 'modificado']
+        db_table = 'produtos'
     
     def __str__(self):
         return self.nome  
@@ -53,6 +68,8 @@ class Precos(models.Model):
     preco_venda_prazo = models.DecimalField('Preço de Venda a Prazo', max_digits=10, decimal_places=2)
     percentual_venda_vista = models.DecimalField('Percentual sobre Preço de Venda à Vista', max_digits=5, decimal_places=2, editable=False)
     percentual_venda_prazo = models.DecimalField('Percentual sobre Preço de Venda a Prazo', max_digits=5, decimal_places=2, editable=False)
+
+
 
     def __str__(self):
         return f'{self.produto.nome} - Preços'

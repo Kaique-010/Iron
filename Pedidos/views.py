@@ -1,17 +1,17 @@
 from datetime import date, timedelta
 import json
 from io import BytesIO
+from django.db import IntegrityError, transaction
 import openpyxl
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, DetailView, DeleteView
-from django.forms import inlineformset_factory
-from django.core import serializers
-from django.http import HttpResponse, Http404, HttpResponseBadRequest, JsonResponse
-from django.db.models import Sum, Count, F, Max
+from django.forms import inlineformset_factory, modelformset_factory
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest
+from django.db.models import Sum, Max
 from django.utils.dateparse import parse_date
 from django.utils.timezone import now
-from django.db import connection
+from django.db import IntegrityError, connection, connections
 from collections import namedtuple
 from Financeiro.models import FormasRecebimento
 from Pessoas.models import Pessoas
@@ -19,24 +19,26 @@ from .models import Pedido, ItemPedido
 from .forms import CRMForm, ItemPedidoForm, PedidoForm
 from Produtos.models import Produtos
 from Financeiro.forms import DateRangeForm
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.mail import send_mail
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
-from django.urls import reverse
+from django.core.exceptions import MultipleObjectsReturned
+from django.db.models import Count
 
 
+def set_empresa_database(empresa):
+    db_alias = empresa.database  
+    if db_alias not in connections:
+        raise IntegrityError(f"Banco de dados {db_alias} não configurado.")
+    connections['default'] = connections[db_alias]
 
-# Função utilitária para converter resultados de cursor em dicionário
+
 def dictfetchall(cursor):
     """Converte todas as linhas do cursor em um dicionário."""
     columns = [col[0] for col in cursor.description]
     Row = namedtuple('Row', columns)
     return [Row(*row)._asdict() for row in cursor.fetchall()]
 
-
 # Formset para ItemPedido
 ItemPedidoFormSet = inlineformset_factory(Pedido, ItemPedido, form=ItemPedidoForm, extra=1, can_delete=True)
-
 
 class PedidosListView(ListView):
     model = Pedido
@@ -45,7 +47,14 @@ class PedidosListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)  
+        
+        licenca_id = self.request.session.get('licenca_id')  
+        queryset = super().get_queryset().using(licenca_id)
+        
         pedido = self.request.GET.get('pedido')
         cliente = self.request.GET.get('cliente')
         start_date = self.request.GET.get('start_date')
@@ -80,61 +89,53 @@ class PedidosListView(ListView):
         context['end_date'] = end_date
 
         return context
-
-
+    
 
 def criar_pedido(request):
-    pedido_status = Pedido._meta.get_field('status').choices
-    clientes = Pessoas.objects.all()
-    formas = Pedido.forma_recebimento  # Verifique se isso é definido corretamente
+    ItemPedidoFormSet = modelformset_factory(ItemPedido, form=ItemPedidoForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
-        status = request.POST.get('status')
-        cliente_id = request.POST.get('cliente')
-        data = request.POST.get('data')
-        
-        if not data:
-            return HttpResponseBadRequest("Data não pode estar vazia")
+        form = PedidoForm(request.POST)
+        formset = ItemPedidoFormSet(request.POST, queryset=ItemPedido.objects.none())
 
-        itens = []
-        for i in range(0, len(request.POST.getlist('itens[0][produto_id]'))):
-            produto_id = request.POST.get(f'itens[{i}][produto_id]')
-            quantidade = request.POST.get(f'itens[{i}][quantidade]')
-            preco_unitario = request.POST.get(f'itens[{i}][preco_unitario]')
-            if produto_id and quantidade and preco_unitario:
-                try:
-                    itens.append((int(produto_id), int(quantidade), float(preco_unitario)))
-                except ValueError:
-                    return HttpResponseBadRequest("Dados dos itens inválidos")
-
-        if not itens:
-            return HttpResponseBadRequest("Nenhum item foi adicionado ao pedido")
-
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO pedidos_pedido (status, cliente_id, data, forma_recebimento)
-                VALUES (%s, %s, %s, %s)
-            """, [status, cliente_id, data, 'forma_recebimento_placeholder'])  # Ajuste conforme necessário
-            pedido_id = cursor.lastrowid
+        if form.is_valid() and formset.is_valid():
+            if not request.user.empresa:
+                raise IntegrityError("Usuário não associado a uma empresa")
             
-            for produto_id, quantidade, preco_unitario in itens:
-                cursor.execute("""
-                    INSERT INTO pedidos_itempedido (pedido_id, produto_id, quantidade, preco_unitario)
-                    VALUES (%s, %s, %s, %s)
-                """, [pedido_id, produto_id, quantidade, preco_unitario])
-        
-        return redirect('pedidoslistas')  
+            # Configura o banco de dados com base na empresa do usuário
+            set_empresa_database(request.user.empresa)
+            
+            try:
+                with transaction.atomic():
+                    pedido = form.save()  # Salva o pedido no banco correto
+                    
+                    # Salva os itens do pedido no banco correto
+                    for item_form in formset:
+                        if item_form.cleaned_data and not item_form.cleaned_data.get('DELETE', False):
+                            quantidade = item_form.cleaned_data.get('quantidade', 0)
+                            preco_unitario = item_form.cleaned_data.get('preco_unitario', 0)
+                            ItemPedido.objects.create(
+                                pedido=pedido,
+                                produto=item_form.cleaned_data['produto'],
+                                quantidade=quantidade,
+                                preco_unitario=preco_unitario,
+                                total=quantidade * preco_unitario
+                            )
+                    
+                    return redirect('pedidoslistas')
+            
+            except IntegrityError:
+                form.add_error(None, "Erro ao criar o pedido. Tente novamente.")
+
+    else:
+        form = PedidoForm()
+        formset = ItemPedidoFormSet(queryset=ItemPedido.objects.none())
 
     context = {
-        'pedido_status': pedido_status,
-        'clientes': clientes,
-        'formas': formas
+        'form': form,
+        'formset': formset,
     }
-
     return render(request, 'pedidoscriar.html', context)
-
-
-
 
 def buscar_produtos(request):
     query = request.GET.get('q', '')
@@ -142,13 +143,24 @@ def buscar_produtos(request):
     resultado = [{'id': produto.id, 'nome': produto.nome} for produto in produtos]
     return JsonResponse(resultado, safe=False)
 
-
 class PedidosUpdateView(UpdateView):
     model = Pedido
     form_class = PedidoForm
     template_name = 'pedidoseditar.html'
     success_url = reverse_lazy('pedidoslistas')
 
+    def get_form(self, form_class=None):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        # Configura o banco de dados da empresa
+        set_empresa_database(self.request.user.empresa)
+        
+        
+        
+        # Chama o método padrão para obter o formulário
+        return super().get_form(form_class)
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
@@ -166,24 +178,39 @@ class PedidosUpdateView(UpdateView):
         if formset.is_valid():
             formset.save()  # Salva o formset com os itens
         else:
-            # Em caso de erro, renderiza o template com erros
             return self.render_to_response(self.get_context_data(form=form, formset=formset))
         
         return response
-
+    
 class PedidosDetailView(DetailView):
     model = Pedido
     template_name = 'pedidosdetalhe.html'
+
+    def get_object(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        return super().get_object()
 
 class PedidosDeleteView(DeleteView):
     model = Pedido
     template_name = 'pedidosexcluir.html'
     success_url = reverse_lazy('pedidoslistas')
+    
+    def get_object(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        return super().get_object()
+    
 
 def pedido_itens(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     context = {'pedido': pedido}
     return render(request, 'pedido_itens.html', context)
+
 
 def criar_planilha_pedidos(pedidos):
     workbook = openpyxl.Workbook()
@@ -193,7 +220,7 @@ def criar_planilha_pedidos(pedidos):
     worksheet.append(columns)
     for pedido in pedidos:
         worksheet.append([
-            pedido.id,  # Alterado de pedido.pedido_id para pedido.id
+            pedido.id,
             pedido.data.strftime('%d-%m-%y'),
             pedido.cliente.nome if pedido.cliente else '',
             pedido.total,
@@ -210,7 +237,7 @@ def exportar_pedidos_excel(request):
     itens_pedidos = ItemPedido.objects.select_related('pedido').all()
     for item in itens_pedidos:
         worksheet_itens.append([
-            item.pedido.id,  # Alterado de item.pedido.pedido_id para item.pedido.id
+            item.pedido.id,
             item.produto.nome,
             item.quantidade,
             item.preco_unitario,
@@ -229,43 +256,20 @@ def crm(request):
     end_date = request.GET.get('end_date')
     cliente = request.GET.get('cliente')
 
-    start_date = parse_date(start_date) if start_date else None
-    end_date = parse_date(end_date) if end_date else None
+    pedidos = Pedido.objects.all()
 
-    query = """
-        SELECT 
-            p.id AS "Nº Pedido",  
-            p.data,
-            p.cliente_id AS "Cliente",
-            p.nome_cliente AS "Nome Cliente",
-            p.nome_vendedor AS "Nome Vendedor",
-            p.notas_contato AS "Notas Contato",
-            p.id AS "pedido_id"
-        FROM Pedidos_pedido p
-        INNER JOIN (
-            SELECT 
-                cliente_id,
-                MAX(id) AS max_numero_pedido  
-            FROM Pedidos_pedido
-            GROUP BY cliente_id
-        ) sub ON p.cliente_id = sub.cliente_id AND p.id = sub.max_numero_pedido
-    """
-
-    params = []
     if start_date and end_date:
-        query += " WHERE p.data BETWEEN %s AND %s"
-        params.extend([start_date, end_date])
+        pedidos = pedidos.filter(data__range=[start_date, end_date])
 
     if cliente:
-        query += " AND p.nome_cliente LIKE %s"
-        params.append(f"%{cliente}%")
+        pedidos = pedidos.filter(nome_cliente__icontains=cliente)
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        result = cursor.fetchall()
+    # Subquery para pegar o último pedido de cada cliente
+    subquery = Pedido.objects.values('cliente_id').annotate(max_id=Max('id'))
+    pedidos = pedidos.filter(id__in=[s['max_id'] for s in subquery])
 
     context = {
-        'crm_data': result,
+        'crm_data': pedidos,
         'start_date': start_date,
         'end_date': end_date,
         'form': CRMForm(initial={'start_date': start_date, 'end_date': end_date}),
@@ -274,7 +278,7 @@ def crm(request):
 
 def marcar_contato_realizado(request, pedido_id):
     try:
-        pedido = Pedido.objects.get(id=pedido_id)  # Alterado de numero_pedido para id
+        pedido = Pedido.objects.get(id=pedido_id)
         pedido.contato_realizado = True
         pedido.data_contato = now().date()
         pedido.save()
@@ -285,117 +289,56 @@ def marcar_contato_realizado(request, pedido_id):
 
     return redirect('detalhar_contato', pedido_id=pedido_id)
 
+
+
 def detalhar_contato(request, pedido_id):
-    query = """
-         SELECT
-            p.id AS "numero_pedido",  # Alterado de p.pedido_id para p.id
-            p.data,
-            p.nome_cliente AS "nome_cliente",
-            p.nome_vendedor AS "nome_vendedor",
-            pc.telefone AS "telefone_cliente",
-            pc.email AS "email_cliente",
-            p.notas_contato
-        FROM pedidos_pedido p
-        LEFT JOIN pessoas_pessoas pc ON p.cliente_id = pc.id
-        WHERE p.id = %s  # Alterado de pedido_id para id
-    """
-
-    params = [pedido_id]
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        resultado = dictfetchall(cursor)
-
-    if not resultado:
-        raise Http404("Pedido não encontrado")
-
-    pedido = resultado[0]
-
-    if request.method == 'POST':
-        notas = request.POST.get('notas')
-        update_query = """
-            UPDATE pedidos_pedido
-            SET notas_contato = %s
-            WHERE id = %s  # Alterado de pedido_id para id
-        """
-        with connection.cursor() as cursor:
-            cursor.execute(update_query, [notas, pedido_id])
-
-        return redirect('/crm/')
-
-    context = {
-        'pedido': pedido,
-    }
-
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    context = {'pedido': pedido}
     return render(request, 'detalhar_contato.html', context)
 
+
+
+def exportar_crm_excel(request):
+    pedidos = Pedido.objects.filter(contato_realizado=True)
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'CRM Export'
+    columns = ['Cliente', 'Data do Contato', 'Nº Pedido', 'Total']
+    worksheet.append(columns)
+    for pedido in pedidos:
+        worksheet.append([
+            pedido.cliente.nome if pedido.cliente else '',
+            pedido.data_contato,
+            pedido.id,
+            pedido.total
+        ])
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=crm_export.xlsx'
+    return response
+
+
 def dashboard(request):
-    vendedor = request.GET.get('vendedor', '')
-    data_inicio = request.GET.get('data_inicio', '')
-    data_fim = request.GET.get('data_fim', '')
-
-    # Obter lista de vendedores
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT DISTINCT vendedor_id, nome_vendedor
-            FROM Pedidos_pedido
-            WHERE status != 'Cancelado'
-            ORDER BY nome_vendedor ASC;
-        """)
-        vendedores = cursor.fetchall()
-        vendedores_list = [{'id': vendedor[0], 'nome': vendedor[1]} for vendedor in vendedores]
-
-    # Consulta principal
-    query = """
-        SELECT 
-            nome_vendedor AS "Nome_Vendedor",
-            COUNT(*) AS "Total_Pedidos",
-            SUM(total) AS "Total_Valor_Pedido"
-        FROM 
-            Pedidos_pedido
-        WHERE 
-            status != 'Cancelado'
-    """
-
-    params = []
-    if vendedor:
-        query += " AND vendedor_id = %s"
-        params.append(vendedor)
+    # Filtra os pedidos com base na licença do usuário
+    licenca_id = request.session.get('licenca_id')
+    pedidos = Pedido.objects.using(licenca_id).all()
     
-    if data_inicio:
-        query += " AND data >= %s"
-        params.append(data_inicio)
-
-    if data_fim:
-        query += " AND data <= %s"
-        params.append(data_fim)
+    # Obtém as métricas necessárias
+    total_pedidos = pedidos.count()
+    total_vendas = pedidos.aggregate(total=Sum('total'))['total'] or 0
+    pedidos_por_cliente = pedidos.values('cliente__nome').annotate(total=Count('id'))
     
-    query += """
-        GROUP BY 
-            vendedor_id, nome_vendedor
-        ORDER BY 
-            nome_vendedor ASC;
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        data = dictfetchall(cursor)
-
-    # Prepare data for the chart
-    labels = [item['Nome_Vendedor'] for item in data]
-    total_pedidos = [float(item['Total_Pedidos']) for item in data]
-    total_valor_pedido = [float(item['Total_Valor_Pedido']) for item in data]
-
+    # Organiza os dados para gráficos ou relatórios
+    cliente_dados = {cliente['cliente__nome']: cliente['total'] for cliente in pedidos_por_cliente}
+    
     context = {
-        'labels': json.dumps(labels),
-        'total_pedidos': json.dumps(total_pedidos),
-        'total_valor_pedido': json.dumps(total_valor_pedido),
-        'vendedor': vendedor,
-        'data_inicio': data_inicio,
-        'data_fim': data_fim,
-        'vendedores': vendedores_list
+        'total_pedidos': total_pedidos,
+        'total_vendas': total_vendas,
+        'clientes': cliente_dados.items(),
     }
-
+    
     return render(request, 'dashboard.html', context)
 
 
@@ -413,8 +356,8 @@ def enviar_emails_inativos(request):
                 MAX(p.data) AS ultima_compra,
                 MAX(p.total) AS total,
                 p.nome_cliente AS nome_cliente
-            FROM Pedidos_pedido p
-            JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
+            FROM pedidos p
+            JOIN pessoas pe ON p.cliente_id = pe.id
             WHERE p.data <= %s
             GROUP BY p.cliente_id, pe.email, p.nome_cliente
                     """
@@ -447,7 +390,7 @@ def enviar_emails_inativos(request):
             return HttpResponseBadRequest("Nenhum cliente selecionado ou mensagem vazia.")
         
         query = """
-            SELECT email FROM Pessoas_pessoas
+            SELECT email FROM pessoas
             WHERE id IN %s
         """
         
@@ -467,37 +410,6 @@ def enviar_emails_inativos(request):
     return HttpResponseBadRequest("Método inválido.")
 
 
-def emails(request):
-    hoje = date.today()
-    dias_para_contato = int(request.GET.get('dias', 180))
-    data_limite = hoje - timedelta(days=dias_para_contato)
-
-    query = """
-        SELECT 
-            DISTINCT 
-            p.cliente_id,
-            pe.email,
-            MAX(p.data) AS ultima_compra,
-            p.total AS total
-        FROM Pedidos_pedido p
-        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
-        WHERE p.data <= %s
-        GROUP BY p.cliente_id, pe.email
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, [data_limite])
-        clientes_inativos = cursor.fetchall()
-
-    context = {
-        'clientes_inativos': clientes_inativos,
-        'data_limite': data_limite,
-        'dias_para_contato': dias_para_contato
-    }
-
-    return render(request, 'emails_inativos.html', context)
-
-
 def clientes_inativos_por_ultima_compra(request):
     hoje = date.today()
     dias_para_contato = int(request.GET.get('dias', 180))
@@ -555,31 +467,3 @@ def emails(request):
     }
 
     return render(request, 'emails_inativos.html', context)
-
-
-def clientes_inativos_por_ultima_compra(request):
-    hoje = date.today()
-    dias_para_contato = int(request.GET.get('dias', 180))
-    data_limite = hoje - timedelta(days=dias_para_contato)
-
-    query = """
-        SELECT 
-            p.cliente_id,
-            pe.email,
-            MAX(p.data) AS ultima_compra,
-            p.total AS total
-        FROM Pedidos_pedido p
-        JOIN Pessoas_pessoas pe ON p.cliente_id = pe.id
-        GROUP BY p.cliente_id, pe.email
-        HAVING MAX(p.data) <= %s
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, [data_limite])
-        clientes_inativos = cursor.fetchall()
-
-    context = {
-        'clientes_inativos': clientes_inativos,
-        'dias_para_contato': dias_para_contato,
-    }
-    return render(request, 'clientes_inativos.html', context)

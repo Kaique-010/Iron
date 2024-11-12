@@ -1,4 +1,5 @@
 from io import BytesIO
+from django.db import IntegrityError, connections
 from django.forms import ValidationError, inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -11,6 +12,12 @@ from django.urls import reverse_lazy
 
 ItensOsFormSet = inlineformset_factory(models.OrdemServico,models.ItensOs,form=forms.ItensOsForm,extra=1,can_delete=True)
 
+def set_empresa_database(empresa):
+    db_alias = empresa.database  
+    if db_alias not in connections:
+        raise IntegrityError(f"Banco de dados {db_alias} não configurado.")
+    connections['default'] = connections[db_alias]
+
 class OsListView(ListView):
     model = models.OrdemServico
     template_name = 'Oslistas.html'
@@ -18,6 +25,11 @@ class OsListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)
+        
         queryset = super().get_queryset()
         numero_os = self.request.GET.get('numero_os')
 
@@ -41,6 +53,11 @@ class OsCreateView(CreateView):
         return data
 
     def form_valid(self, form):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa) 
+       
         context = self.get_context_data()
         formset = context['formset']
         if formset.is_valid():
@@ -78,6 +95,14 @@ def nova_os(request):
 class OsDetailView(DetailView):
     model = models.OrdemServico
     template_name = 'Osdetalhe.html'
+    
+    def get_object(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        return super().get_object()
+
 
 
 class OsUpdateView(UpdateView):
@@ -95,6 +120,10 @@ class OsUpdateView(UpdateView):
         return data
 
     def form_valid(self, form):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa) 
         context = self.get_context_data()
         formset = context['formset']
         if formset.is_valid():
@@ -109,6 +138,14 @@ class OsDeleteView(DeleteView):
     model = models.OrdemServico
     template_name = 'Osexcluir.html'
     success_url = reverse_lazy('Oslistas')
+    
+    def get_object(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        return super().get_object()
+
 
 
 

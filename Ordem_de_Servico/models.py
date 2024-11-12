@@ -1,14 +1,26 @@
+import uuid
 from django import forms
 from django.db import models
 from Pessoas.models import Pessoas
 from Produtos.models import Produtos
 from sequences import get_next_value
+from app import settings
+from Empresas.models import Empresa
+
+
+class EmpresaManager(models.Manager):
+    def for_user(self, user):
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(empresa=user.empresa)
 
 class Base(models.Model):
-    criado = models.DateField('Data de Criação', auto_now_add=True)
-    modificado = models.DateField('Data de Modificação', auto_now=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    criado = models.DateField('Criado em', auto_now_add=True)
+    modificado = models.DateField('Atualização', auto_now=True)
     ativo = models.BooleanField('Ativo?', default=True)
-
+    
+    objects = EmpresaManager()
     class Meta:
         abstract = True
 
@@ -18,10 +30,12 @@ class OrdemServico(Base):
     data_abertura = models.DateField() 
     data_fechamento = models.DateField(blank=True, null=True)  
 
+
     class Meta:
         verbose_name = 'Ordem de Serviço'
         verbose_name_plural = 'Ordens de Serviço'
         ordering = ['criado', 'numero_os']
+        db_table = 'os'
     
     def calcular_total(self):
         total = sum(item.valor for item in self.itens.all())
@@ -51,6 +65,7 @@ class ItensOs(Base):
         verbose_name_plural = 'Peças'
         unique_together = ('numero_os', 'item_numero')
         ordering = ['criado', 'numero_os']
+        db_table = 'itensos'
 
     def __str__(self):
         return f"ItensOs {self.id} - {self.item_numero} - {self.peca} - {self.servico}"

@@ -12,27 +12,24 @@
   .card {
     border-width: 2px;
     border-color: #5d88b6;
-    border-style: solid;
     background: linear-gradient(#0f0f0f, #53524f);
   }
 
   .form-control {
     border-width: 2px;
     border-color: #5d88b6;
-    border-style: solid;
   }
 
   .item-container {
     margin-top: 1rem;
   }
 
-  .item-container .item-row {
+  .item-row {
     margin-bottom: 1rem;
   }
 
   .row-spacing {
     margin-bottom: 20px;
-    /* ou ajuste conforme necessário */
   }
 
   .text-right {
@@ -42,104 +39,87 @@
 
 <br>
 
-<div class="container-fluid">
-  <div class="card">
-    <div class="card-body">
-      <h3 class="card-title">
-        Pedido de venda <i class="bi bi-cart-plus" style="font-size: 2rem"></i>
-      </h3>
+<form method="post" id="pedido-form">
+  {% csrf_token %}
 
-      <form method="post" id="pedido-form">
-        {% csrf_token %}
+  <div class="container border p-4 mt-4" style="background: #1d1f27; border-radius: 8px;">
+    <h2 class="text-center mb-4 text-white">
+      <i class="fa fa-shopping-cart"></i> Pedido de Venda
+    </h2>
 
-        <div class="container">
-          <div class="row row-spacing">
-            <div class="col-md-3">
-              <label>Data:</label>
-              <input type="date" name="data" class="form-control" />
-            </div>
-          </div>
-          <!-- Status e Cliente lado a lado -->
-          <div class="row row-spacing">
-            <div class="col-md-6">
-              <label>Status:</label>
-              <select name="status" class="form-control">
-                {% for status in pedido_status %}
-                <option value="{{ status.0 }}">{{ status.1 }}</option>
-                {% endfor %}
-              </select>
-            </div>
+    <!-- Informações do Pedido -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <label for="data_pedido" class="form-label text-white">Data Pedido:</label>
+        {{ form.data }}
+      </div>
+      <div class="col-md-5"></div>
+      <div class="col-md-4">
+        <label for="status" class="form-label text-white">Status:</label>
+        {{ form.status }}
+      </div>
+    </div>
 
-            <div class="col-md-6">
-              <label>Cliente:</label>
-              <select name="cliente" class="form-control">
-                {% for cliente in clientes %}
-                <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-        </div>
-        <br>
-        <div class="row row-spacing"></div>        
-        <div class="row row-spacing"></div>
-        <!-- Itens do pedido -->
-        <h3>Itens do pedido</h3>
-        <div class="row row-spacing"></div>
-        <div id="itens-container" class="container">
-          <div class="row row-spacing">
-            <!-- Cabeçalhos das colunas -->
-            <div class="col-md-4">
-              <label>Produto</label>
-            </div>
-            <div class="col-md-4">
-              <label>Quantidade</label>
-            </div>
-            <div class="col-md-4">
-              <label>Preço Unitário</label>
-            </div>
-          </div>
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <label for="cliente" class="form-label text-white">Cliente:</label>
+        {{ form.cliente }}
+      </div>
+    </div>
 
-          <div class="item-row">
-            <div class="row row-spacing">
-              <div class="col-md-4">
-                <input id="produto-autocomplete-0" class="form-control produto-autocomplete" data-index="0" />
-                <input type="hidden" name="itens[0][produto_id]" class="produto-id" />
-              </div>
-              <div class="col-md-4">
-                <input type="number" name="itens[0][quantidade]" class="form-control" />
-              </div>
-              <div class="col-md-4">
-                <input type="number" name="itens[0][preco_unitario]" class="form-control" step="0.01" />
-              </div>
-            </div>
-          </div>
-        </div>
-       
-         <div class="row row-spacing"></div>
-         <div class="row row-spacing"></div>
-         <div class="row row-spacing"></div>
+    <div class="row mb-4">
+      <div class="col-md-5">
+        <label for="financeiro" class="form-label text-white">Financeiro:</label>
+        {{ form.financeiro }}
+      </div>
+      <div class="col-md-7">
+        <label for="vendedor" class="form-label text-white">Vendedor:</label>
+        {{ form.vendedor }}
+      </div>
+    </div>
 
-        <div class="row row-spacing">
+    <div class="col-md-12">
+      <label for="observacoes" class="form-label text-white">Observações:</label>
+      {{ form.observacoes }}
+    </div>
 
-          <div class="col-md-9 text-right">
-            <strong>Total: R$</strong>
-          </div>
+    <!-- Itens do Pedido -->
+    <h3 class="text-white mt-4">Itens do Pedido</h3>
+    <table class="table table-dark table-striped mt-3">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Preço Unitário</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="itens-container">
+        {% for form in formset %}
+        <tr class="item-row">
+          <td>
+            {{ form.produto }}
+            <input type="hidden" class="produto-id" name="form-{{ forloop.counter0 }}-produto_id">
+          </td>
+          <td>{{ form.quantidade }}</td>
+          <td>{{ form.preco_unitario }}</td>
+          <td>
+            <button type="button" class="btn btn-danger btn-sm btn-remove-item">Remover</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-          <div class="col-md-3">
-            <input type="text" id="total" class="text-right" readonly />
-          </div>
-        </div>
+    <button type="button" onclick="window.addItem()" class="btn btn-secondary mt-3">Adicionar Item</button>
+    <button type="submit" class="btn btn-primary mt-3">Salvar Pedido</button>
 
-        <!-- Adicionar e Salvar -->
-        <br>
-        <button type="button" onclick="addItem()" class="btn btn-secondary">Adicionar Item</button>
-        <button type="submit" class="btn btn-primary">Salvar Pedido</button>
-
-      </form>
+    <div class="text-right mt-3">
+      <label class="text-white">Total:</label>
+      <input type="text" id="total" class="form-control" readonly>
     </div>
   </div>
-</div>
+</form>
 
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -154,50 +134,34 @@
           $.ajax({
             url: '{% url "buscar_produtos" %}',
             dataType: 'json',
-            data: {
-              q: request.term,
-            },
+            data: { q: request.term },
             success: function (data) {
-              response(
-                data.map(function (item) {
-                  return {
-                    label: item.nome,
-                    value: item.id,
-                  };
-                })
-              );
-            },
+              response(data.map(item => ({ label: item.nome, value: item.id })));
+            }
           });
         },
         select: function (event, ui) {
-          $(this).siblings('.produto-id').val(ui.item.value);
-        },
+          $(this).siblings(".produto-id").val(ui.item.value);
+        }
       });
     }
 
-    function addItem() {
-      var container = document.getElementById("itens-container");
-      var itemCount = container.querySelectorAll(".item-row").length;
-
-      var newItemHtml = `
-        <div class="item-row">
-          <div class="row">
-            <div class="col-md-4">
-              <input id="produto-autocomplete-${itemCount}" class="form-control produto-autocomplete" />
-              <input type="hidden" name="itens[${itemCount}][produto_id]" class="produto-id" />
-            </div>
-            <div class="col-md-4">
-              <input type="number" name="itens[${itemCount}][quantidade]" class="form-control" />
-            </div>
-            <div class="col-md-4">
-              <input type="number" name="itens[${itemCount}][preco_unitario]" class="form-control" step="0.01" />
-            </div>
-          </div>
-        </div>`;
-
-      container.insertAdjacentHTML('beforeend', newItemHtml);
+    // Função global para adicionar item
+    window.addItem = function () {
+      const itemCount = $("#itens-container .item-row").length;
+      const newRow = `
+        <tr class="item-row">
+          <td>
+            <input type="text" id="produto-autocomplete-${itemCount}" class="form-control">
+            <input type="hidden" class="produto-id" name="form-${itemCount}-produto_id">
+          </td>
+          <td><input type="number" name="form-{{ forloop.counter0 }}-quantidade" class="form-control" step="1"></td>
+          <td><input type="number" name="form-{{ forloop.counter0 }}-preco_unitario" class="form-control" step="0.01"></td>
+          <td><button type="button" class="btn btn-danger btn-sm btn-remove-item">Remover</button></td>
+        </tr>`;
+      $("#itens-container").append(newRow);
       setupAutocomplete(itemCount);
-    }
+    };
 
     function updateTotal() {
       var total = 0;
@@ -209,18 +173,16 @@
       $("#total").val(total.toFixed(2));
     }
 
+    // Eventos dinâmicos
+    $(document).on("input", 'input[name$="[quantidade]"], input[name$="[preco_unitario]"]', updateTotal);
+    $(document).on("click", ".btn-remove-item", function () {
+      $(this).closest(".item-row").remove();
+      updateTotal();
+    });
+
+    // Inicializar autocomplete no primeiro item
     setupAutocomplete(0);
 
-    $(document).on('input', 'input[name$="[quantidade]"], input[name$="[preco_unitario]"]', function () {
-      updateTotal();
-    });
-
-    $(document).on("click", ".btn-remove-item", function (event) {
-      $(event.target).closest(".item-row").remove();
-      updateTotal();
-    });
-
-    window.addItem = addItem;
   });
 </script>
 

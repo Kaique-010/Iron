@@ -77,7 +77,17 @@ Criar Pessoa
         display: block;
     }
 </style>
-
+{% if form.errors %}
+<div class="alert alert-danger">
+    <ul>
+        {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+        <li>{{ field }}: {{ error }}</li>
+        {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <div class="container">
     <div class="card">
         <div class="card-body">
@@ -95,14 +105,20 @@ Criar Pessoa
 
                 <div id="pessoal" class="tab-content active">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 {{ form.nome.label_tag }}
                                 {{ form.nome }}
                             </div>
                         </div>
+                    
+                    <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.classificacao.label_tag }}
+                                {{ form.classificacao }}
+                            </div>
+                        </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

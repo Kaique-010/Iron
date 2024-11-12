@@ -56,6 +56,12 @@
         <div class="footer-bottom">
             <p>&copy; {{ '2024' }} IRON SYSTEM. Todos os direitos reservados.</p>
             <p id="dataAcesso">Acesso em:</p>
+            {% if request.session.usuario_nome and request.session.empresa_name %}
+            <p>Usuário logado: {{ request.session.usuario_nome }}</p>
+            <p>Empresa: {{ request.session.empresa_name }}</p>
+            {% else %}
+            <p>Nenhum usuário logado.</p>
+            {% endif %}
         </div>
     </footer>
     <script>

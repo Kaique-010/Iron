@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .container {
+        margin-top: 5%;
+        text-align: center;
+        margin-bottom: 5%;
+    }
+</style>
+<div container>
+    <title>Cadastro de Empresa</title>
+
+    <h2>Cadastro de Empresa</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Cadastrar</button>
+    </form>
+
+
+    {% endblock %}
+</div>

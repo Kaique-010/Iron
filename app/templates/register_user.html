@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .container {
+        margin-top: 5%;
+        text-align: center;
+        margin-bottom: 5%;
+    }
+
+    .error {
+        color: red;
+        font-size: 14px;
+    }
+
+    .success-message {
+        color: green;
+        font-weight: bold;
+    }
+</style>
+{% if success_message %}
+<p class="success-message">{{ success_message }}</p>
+{% endif %}
+<div class="container">
+    <h2>Cadastro de Usuário</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <!-- Exibir erros de validação -->
+    {% if errors %}
+    <div class="error">
+        <h3>Erros de Validação:</h3>
+        <ul>
+            {% for field, error_list in errors.items %}
+            <li><strong>{{ field }}:</strong> {{ error_list|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from io import BytesIO
-from django.db import connection
+from django.db import IntegrityError, connection, connections
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -11,15 +11,35 @@ from django.db.models import Sum
 from datetime import date, timedelta
 from django.utils.dateparse import parse_date
 
+# Função para configurar o banco de dados de acordo com a empresa do usuário
+def set_empresa_database(empresa):
+    db_alias = empresa.database  
+    if db_alias not in connections:
+        raise IntegrityError(f"Banco de dados {db_alias} não configurado.")
+    connections['default'] = connections[db_alias]
 
-class ContaAPagarListView(ListView):
+# Base View for ContaAPagar and ContaAReceber
+
+class EmpresaBaseView:
+    """
+    Classe base para configurar a empresa e banco de dados de cada view.
+    """
+    def set_empresa(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        set_empresa_database(self.request.user.empresa)
+
+
+class ContaAPagarListView(EmpresaBaseView, ListView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_list.html'
     context_object_name = 'contas_a_pagar'
     paginate_by = 10
 
     def get_queryset(self):
+        self.set_empresa()  # Configura o banco de dados
         queryset = super().get_queryset()
+        
         descricao = self.request.GET.get('descricao')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -49,39 +69,62 @@ class ContaAPagarListView(ListView):
         context['total_contas'] = contas.count()
         context['total_valor'] = contas.aggregate(total_valor=Sum('valor'))['total_valor'] or 0
         return context
-    
-class ContaAPagarDetailView(DetailView):
+
+
+class ContaAPagarDetailView(EmpresaBaseView, DetailView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_detail.html'
     context_object_name = 'conta_a_pagar'
-    
 
-class ContaAPagarCreateView(CreateView):
+    def get_object(self):
+        self.set_empresa()  # Configura o banco de dados
+        return super().get_object()
+
+
+class ContaAPagarCreateView(EmpresaBaseView, CreateView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_update.html'
     form_class = ContaAPagarForm
     success_url = reverse_lazy('conta_a_pagar_list')
 
-class ContaAPagarUpdateView(UpdateView):
+    def form_valid(self, form):
+        self.set_empresa()  # Configura o banco de dados
+        return super().form_valid(form)
+
+
+class ContaAPagarUpdateView(EmpresaBaseView, UpdateView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_update.html'
     form_class = ContaAPagarForm
     success_url = reverse_lazy('conta_a_pagar_list')
 
-class ContaAPagarDeleteView(DeleteView):
+    def form_valid(self, form):
+        self.set_empresa()  # Configura o banco de dados
+        return super().form_valid(form)
+
+
+class ContaAPagarDeleteView(EmpresaBaseView, DeleteView):
     model = ContaAPagar
     template_name = 'conta_a_pagar_delete.html'
     success_url = reverse_lazy('conta_a_pagar_list')
 
+    def get_object(self):
+        self.set_empresa()  # Configura o banco de dados
+        return super().get_object()
+
+
 # Views para ContaAReceber
-class ContaAReceberListView(ListView):
+
+class ContaAReceberListView(EmpresaBaseView, ListView):
     model = ContaAReceber
     template_name = 'conta_a_receber_list.html'
     context_object_name = 'contas_a_receber'
     paginate_by = 10
 
     def get_queryset(self):
+        self.set_empresa()  # Configura o banco de dados
         queryset = super().get_queryset()
+        
         descricao = self.request.GET.get('descricao')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -112,27 +155,48 @@ class ContaAReceberListView(ListView):
         context['total_valor'] = contas.aggregate(total_valor=Sum('valor'))['total_valor'] or 0
         return context
 
-class ContaAReceberDetailView(DetailView):
+
+class ContaAReceberDetailView(EmpresaBaseView, DetailView):
     model = ContaAReceber
     template_name = 'conta_a_receber_detail.html'
     context_object_name = 'conta_a_receber'
 
-class ContaAReceberCreateView(CreateView):
+    def get_object(self):
+        self.set_empresa()  # Configura o banco de dados
+        return super().get_object()
+
+
+class ContaAReceberCreateView(EmpresaBaseView, CreateView):
     model = ContaAReceber
     template_name = 'conta_a_receber_update.html'
     form_class = ContaAReceberForm
     success_url = reverse_lazy('conta_a_receber_list')
 
-class ContaAReceberUpdateView(UpdateView):
+    def form_valid(self, form):
+        self.set_empresa()  # Configura o banco de dados
+        return super().form_valid(form)
+
+
+class ContaAReceberUpdateView(EmpresaBaseView, UpdateView):
     model = ContaAReceber
     template_name = 'conta_a_receber_update.html'
     form_class = ContaAReceberForm
     success_url = reverse_lazy('conta_a_receber_list')
 
-class ContaAReceberDeleteView(DeleteView):
+    def form_valid(self, form):
+        self.set_empresa()  # Configura o banco de dados
+        return super().form_valid(form)
+
+
+class ContaAReceberDeleteView(EmpresaBaseView, DeleteView):
     model = ContaAReceber
     template_name = 'conta_a_receber_delete.html'
     success_url = reverse_lazy('conta_a_receber_list')
+
+    def get_object(self):
+        self.set_empresa()  # Configura o banco de dados
+        return super().get_object()
+    
 
 
 def totaisapagar(request):
@@ -182,7 +246,7 @@ def fluxo_caixa(request):
         'start_date': start_date,
         'end_date': end_date,
     }
-
+    
     return render(request, 'fluxo_caixa.html', context)
 
 
