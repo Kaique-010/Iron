@@ -42,7 +42,8 @@ class MarcasCreateView(CreateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
+        form.instance.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 class MarcasDetailView(DetailView):
@@ -68,7 +69,8 @@ class MarcasUpdateView(UpdateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
+        form.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 

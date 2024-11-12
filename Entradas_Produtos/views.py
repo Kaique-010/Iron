@@ -24,6 +24,7 @@ class EntradasListView(ListView):
         
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
         
+        
         queryset = super().get_queryset()
         produto = self.request.GET.get('produto')
     
@@ -43,7 +44,8 @@ class EntradasCreateView(CreateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
+        form.instance.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 
@@ -69,7 +71,8 @@ class EntradasUpdateView(UpdateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
+        form.instance.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 

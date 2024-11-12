@@ -44,6 +44,7 @@ class GruposCreateView(CreateView):
             raise IntegrityError("Usuário não associado a uma empresa")
         
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        form.instance.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 class GruposDetailView(DetailView):
@@ -70,6 +71,7 @@ class GruposUpdateView(UpdateView):
             raise IntegrityError("Usuário não associado a uma empresa")
         
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        form.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 
@@ -83,6 +85,7 @@ class GruposDeleteView(DeleteView):
             raise IntegrityError("Usuário não associado a uma empresa")
         
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        
         return super().get_object()
 
 

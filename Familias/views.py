@@ -1,7 +1,10 @@
 from django.db import IntegrityError, connections
+from django.shortcuts import redirect
+from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from . import models, forms
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
 
 
 def set_empresa_database(empresa):
@@ -23,6 +26,9 @@ class FamiliasListView(ListView):
         
         set_empresa_database(self.request.user.empresa)  
         
+        
+
+        
         queryset = super().get_queryset()
         nome = self.request.GET.get('nome')
 
@@ -32,6 +38,7 @@ class FamiliasListView(ListView):
         return queryset
 
 
+
 class FamiliaCreateView(CreateView):
     model = models.Familia
     template_name = 'familiascriar.html'
@@ -39,12 +46,19 @@ class FamiliaCreateView(CreateView):
     success_url = reverse_lazy('familiaslistas')
 
     def form_valid(self, form):
-        if not self.request.user.empresa:
-            raise IntegrityError("Usuário não associado a uma empresa")
+        # Verifica se o usuário está autenticado
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        # Verifica se o usuário tem uma empresa associada
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        # Configura a empresa para o formulário
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
         return super().form_valid(form)
-
 
 class FamiliaDetailView(DetailView):
     model = models.Familia
@@ -68,7 +82,8 @@ class FamiliaUpdateView(UpdateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
+        form.empresa = self.request.user.empresa
         return super().form_valid(form)
 
 
