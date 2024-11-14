@@ -1,24 +1,25 @@
 from io import BytesIO
 from django.db import IntegrityError, connection, connections
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 import openpyxl
-from .models import ContaAPagar, ContaAReceber
-from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm
-from django.shortcuts import render
+from .models import ContaAPagar, ContaAReceber, FormasPagamento, FormasRecebimento, Categorias
+from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm, CategoriaForm, FormasPagamentoForm, FormasRecebimentoForm
+from django.shortcuts import redirect, render
 from django.db.models import Sum
 from datetime import date, timedelta
 from django.utils.dateparse import parse_date
 
-# Função para configurar o banco de dados de acordo com a empresa do usuário
+
 def set_empresa_database(empresa):
     db_alias = empresa.database  
     if db_alias not in connections:
         raise IntegrityError(f"Banco de dados {db_alias} não configurado.")
     connections['default'] = connections[db_alias]
 
-# Base View for ContaAPagar and ContaAReceber
+
 
 class EmpresaBaseView:
     """
@@ -88,9 +89,19 @@ class ContaAPagarCreateView(EmpresaBaseView, CreateView):
     success_url = reverse_lazy('conta_a_pagar_list')
 
     def form_valid(self, form):
-        self.set_empresa()  # Configura o banco de dados
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
         return super().form_valid(form)
-
 
 class ContaAPagarUpdateView(EmpresaBaseView, UpdateView):
     model = ContaAPagar
@@ -99,7 +110,18 @@ class ContaAPagarUpdateView(EmpresaBaseView, UpdateView):
     success_url = reverse_lazy('conta_a_pagar_list')
 
     def form_valid(self, form):
-        self.set_empresa()  # Configura o banco de dados
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
         return super().form_valid(form)
 
 
@@ -113,7 +135,7 @@ class ContaAPagarDeleteView(EmpresaBaseView, DeleteView):
         return super().get_object()
 
 
-# Views para ContaAReceber
+
 
 class ContaAReceberListView(EmpresaBaseView, ListView):
     model = ContaAReceber
@@ -173,7 +195,18 @@ class ContaAReceberCreateView(EmpresaBaseView, CreateView):
     success_url = reverse_lazy('conta_a_receber_list')
 
     def form_valid(self, form):
-        self.set_empresa()  # Configura o banco de dados
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
         return super().form_valid(form)
 
 
@@ -184,7 +217,18 @@ class ContaAReceberUpdateView(EmpresaBaseView, UpdateView):
     success_url = reverse_lazy('conta_a_receber_list')
 
     def form_valid(self, form):
-        self.set_empresa()  # Configura o banco de dados
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
         return super().form_valid(form)
 
 
@@ -360,3 +404,242 @@ def exportar_contaareceber_excel(request):
     response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=contas_a_receber.xlsx'  
     return response
+
+
+
+class FormaRecebimentoListView(EmpresaBaseView, ListView):
+    model = FormasRecebimento
+    template_name = 'formas_recebimento_list.html'
+    context_object_name = 'formas_recebimento'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.set_empresa() 
+        queryset = super().get_queryset()
+        descricao = self.request.GET.get('descricao')
+        
+        if descricao:
+            queryset = queryset.filter(descricao__icontains=descricao)
+        
+        return queryset
+
+
+class FormaRecebimentoDetailView(EmpresaBaseView, DetailView):
+    model = FormasRecebimento
+    template_name = 'formas_recebimento_detail.html'
+    context_object_name = 'forma_recebimento'
+
+    def get_object(self):
+        self.set_empresa()  # Configura o banco de dados
+        return super().get_object()
+
+
+class FormaRecebimentoCreateView(EmpresaBaseView, CreateView):
+    model = FormasRecebimento
+    template_name = 'formas_recebimento_form.html'
+    form_class = FormasRecebimentoForm
+    success_url = reverse_lazy('formas_recebimento_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.user = self.request.user
+        
+        return super().form_valid(form)
+
+
+class FormaRecebimentoUpdateView(EmpresaBaseView, UpdateView):
+    model = FormasRecebimento
+    template_name = 'formas_recebimento_form.html'
+    form_class = FormasRecebimentoForm
+    success_url = reverse_lazy('forma_recebimento_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
+        return super().form_valid(form)
+
+
+class FormaRecebimentoDeleteView(EmpresaBaseView, DeleteView):
+    model = FormasRecebimento
+    template_name = 'formas_recebimento_confirm_delete.html'
+    success_url = reverse_lazy('forma_recebimento_list')
+
+
+
+class FormaPagamentoListView(EmpresaBaseView, ListView):
+    model = FormasPagamento
+    template_name = 'formas_pagamento_list.html'
+    context_object_name = 'formas_pagamento'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.set_empresa()  
+        queryset = super().get_queryset()
+        descricao = self.request.GET.get('descricao')
+        
+        if descricao:
+            queryset = queryset.filter(descricao__icontains=descricao)
+        
+        return queryset
+
+
+class FormaPagamentoDetailView(EmpresaBaseView, DetailView):
+    model = FormasPagamento
+    template_name = 'formas_pagamento_detail.html'
+    context_object_name = 'forma_pagamento'
+
+    def get_object(self):
+        self.set_empresa()  
+        return super().get_object()
+
+
+class FormaPagamentoCreateView(EmpresaBaseView, CreateView):
+    model = FormasPagamento
+    form_class = FormasPagamentoForm
+    template_name = 'formas_pagamento_form.html'
+    success_url = reverse_lazy('formas_pagamento_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.user = self.request.user
+        
+        return super().form_valid(form)
+
+
+class FormaPagamentoUpdateView(EmpresaBaseView, UpdateView):
+    model = FormasPagamento
+    form_class = FormasPagamentoForm
+    template_name = 'formas_pagamento_form.html'
+    success_url = reverse_lazy('formas_pagamento_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
+        return super().form_valid(form)
+
+
+class FormaPagamentoDeleteView(EmpresaBaseView, DeleteView):
+    model = FormasPagamento
+    template_name = 'formas_pagamento_confirm_delete.html'
+    success_url = reverse_lazy('formas_pagamento_list')
+
+
+class CategoriaListView(EmpresaBaseView, ListView):
+    model = Categorias
+    template_name = 'categorias_list.html'
+    context_object_name = 'categorias'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.set_empresa()  # Configura o banco de dados
+        queryset = super().get_queryset()
+        descricao = self.request.GET.get('descricao')
+        
+        if descricao:
+            queryset = queryset.filter(descricao__icontains=descricao)
+        
+        return queryset
+
+
+class CategoriaDetailView(EmpresaBaseView, DetailView):
+    model = Categorias
+    template_name = 'categorias_detail.html'
+    context_object_name = 'categoria'
+
+    def get_object(self):
+        self.set_empresa()  
+        return super().get_object()
+
+
+class CategoriaCreateView(EmpresaBaseView, CreateView):
+    model = Categorias
+    template_name = 'categorias_form.html'
+    form_class = CategoriaForm
+    success_url = reverse_lazy('categorias_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.user = self.request.user
+        
+        return super().form_valid(form)
+
+
+class CategoriaUpdateView(EmpresaBaseView, UpdateView):
+    model = Categorias
+    template_name = 'categorias_form.html'
+    form_class = CategoriaForm
+    success_url = reverse_lazy('categorias_list')
+
+    def form_valid(self, form):
+        
+        if not self.request.user.is_authenticated:
+            return redirect('login')  # Ou redirecionar para a página desejada
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
+        return super().form_valid(form)
+
+
+class CategoriaDeleteView(EmpresaBaseView, DeleteView):
+    model = Categorias
+    template_name = 'categorias_confirm_delete.html'
+    success_url = reverse_lazy('categorias_list')
+
+
+

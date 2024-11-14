@@ -35,7 +35,7 @@ class FormasRecebimento(Base):
         
     ]
     
-    descricao = models.CharField('Tipo de Recebimento', max_length=20, choices=TIPO_RECEBIMENTO_CHOICES)
+    descricao = models.CharField('Tipo de Recebimento', max_length=25)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     objects = EmpresaManager()
@@ -52,17 +52,7 @@ class FormasRecebimento(Base):
 
 class FormasPagamento(Base):
     
-    TIPO_PAGAMENTO_CHOICES = [
-        ('dinheiro', 'Dinheiro'),
-        ('cartao_credito', 'Cartão de Crédito'),
-        ('cartao_debito', 'Cartão de Débito'),
-        ('pix', 'Pix'),
-        ('boleto', 'Boleto'),
-        ('transferencia', 'Transferência Bancária'),
-        
-    ]
-    
-    descricao = models.CharField('Tipo de Recebimento', max_length=20, choices=TIPO_PAGAMENTO_CHOICES)
+    descricao = models.CharField('Tipo de Pagamento', max_length=25)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):

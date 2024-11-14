@@ -7,7 +7,39 @@ Lista de Ordens de Serviço
 {% block content %}
 <style>
     h3 {
-        color: antiquewhite;
+        color: rgb(225, 211, 193);
+        text-align: center;
+    }
+
+    th,
+    td {
+        text-align: center;
+    }
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .bi-eye{
+        color: azure;
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
     }
 </style>
 <br>
@@ -56,9 +88,15 @@ Lista de Ordens de Serviço
                     <td>{{ ordem.data_abertura }}</td>
                     <td>{{ ordem.cliente }}</td>
                     <td>
-                        <a href="{% url 'Osdetalhe' ordem.id %}" class="btn btn-info">Detalhes</a>
-                        <a href="{% url 'Oseditar' ordem.id %}" class="btn btn-warning">Editar</a>
-                        <a href="{% url 'Osexcluir' ordem.id %}" class="btn btn-danger">Deletar</a>
+                        <a href="{% url 'Osdetalhe' ordem.id %}" class="btn btn-info btn-sm" title="Detalhes" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'Oseditar' ordem.id %}" class="btn btn-warning btn-sm" title="Editar" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'Osexcluir' ordem.id %}" class="btn btn-danger btn-sm"title="Excluir" data-bs-toggle="tooltip" data-bs-placement="top">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </td>
                 </tr>
                 {% empty %}

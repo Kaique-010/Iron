@@ -50,3 +50,53 @@ class DateRangeForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['start_date'].input_formats = ['%Y-%m-%d']
         self.fields['end_date'].input_formats = ['%Y-%m-%d']    
+
+
+
+
+
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categorias
+        fields = ['descricao'] 
+
+    
+    descricao = forms.CharField(max_length=255, required=False, label='Descrição', widget=forms.Textarea(attrs={'class': 'form-control'}))
+
+    def clean_nome(self):
+        nome = self.cleaned_data['descricao']
+        if Categorias.objects.filter(descricao='descricao').exists():
+            raise forms.ValidationError("Esta categoria já existe.")
+        return nome
+
+
+class FormasRecebimentoForm(forms.ModelForm):
+    class Meta:
+        model = FormasRecebimento
+        fields = ['descricao']  
+
+    descricao = forms.CharField(max_length=255, label='Descrição', widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def clean_descricao(self):
+        descricao = self.cleaned_data['descricao']
+        if FormasRecebimento.objects.filter(descricao=descricao).exists():
+            raise forms.ValidationError("Esta forma de recebimento já existe.")
+        return descricao
+
+
+
+
+class FormasPagamentoForm(forms.ModelForm):
+    class Meta:
+        model = FormasPagamento
+        fields = ['descricao']  
+
+    descricao = forms.CharField(max_length=255, label='Descrição', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+
+    def clean_descricao(self):
+        descricao = self.cleaned_data['descricao']
+        if FormasPagamento.objects.filter(descricao=descricao).exists():
+            raise forms.ValidationError("Esta forma de pagamento já existe.")
+        return descricao

@@ -6,20 +6,51 @@ Lista de pessoas
 
 {% block content %}
 <style>
-    h3{
+    h3 {
         color: rgb(225, 211, 193);
+        text-align: center;
     }
-</style>
-<br>
-<br>
-<style>
-    h3{
-        color: antiquewhite;
+  
+    th,
+    td {
+        text-align: center;
     }
-</style>
+  
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+  
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+  
+    .bi-eye{
+        color: azure;
+    }
+  
+    .bi-cart-plus{
+      align-items: center;
+    }
+  
+    .btn-warning {
+        background-color: darksalmon;
+    }
+  
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+  
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+  </style>
 <div class="container-fluid"></div>
 <div class="card" style="background-color: rgb(28, 33, 35);">
-<center><h3>Lista de Pessoas</h3><i class="bi bi-person-check" style="font-size: 2rem;"></i></i></center>
+    <center>
+        <h3>Lista de Pessoas</h3><i class="bi bi-person-check" style="font-size: 2rem;"></i></i>
+    </center>
 </div>
 <div class="container-fluid"></div>
 <div class="col md-4">
@@ -33,7 +64,7 @@ Lista de pessoas
     <div class="col-md-4">
         <form method="get" action="{% url 'pessoaslistas' %}">
             <div class="input-group">
-                <input type="text" class="form-control" name="nome" placeholder="Nome" value="{{ request.GET.name }}">
+                <input type="text" class="form-control" name="nome" placeholder="Nome" value="{{ request.GET.nome }}">
                 <button class="btn btn-primary" type="submit">Pesquisar
                     <i class="bi bi-search"></i>
                 </button>
@@ -57,7 +88,7 @@ Lista de pessoas
             </tr>
         </thead>
         <tbody>
-            {% for pessoas in Pessoas %}
+            {% for pessoas in pessoas %}
             <tr>
                 <td>{{ pessoas.id }}</td>
                 <td>{{ pessoas.nome }}</td>
@@ -65,19 +96,20 @@ Lista de pessoas
                 <td>{{ pessoas.classificacao }}</td>
                 <td>
                     {% if pessoas.foto %}
-                        <center><img src="{{ pessoas.foto.url }}" alt="Foto de {{ pessoas.nome }}" style="width: 70px; height: auto;"></center>
+                    <center><img src="{{ pessoas.foto.url }}" alt="Foto de {{ pessoas.nome }}"
+                            style="width: 70px; height: auto;"></center>
                     {% else %}
-                        Nenhuma foto
+                    Nenhuma foto
                     {% endif %}
 
                 <td>
-                    <a href="{% url 'pessoasdetalhe' pessoas.id%}" class="btn btn-info btn-sm">
+                    <a href="{% url 'pessoasdetalhe' pessoas.id%}" class="btn btn-info btn-sm" title="Detalhes" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="{% url 'pessoaseditar' pessoas.id%}" class="btn btn-warning btn-sm">
+                    <a href="{% url 'pessoaseditar' pessoas.id%}" class="btn btn-warning btn-sm" title="Editar" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a href="{% url 'pessoasexcluir' pessoas.id%}" class="btn btn-danger btn-sm">
+                    <a href="{% url 'pessoasexcluir' pessoas.id%}" class="btn btn-danger btn-sm"title="Excluir" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-trash"></i>
                     </a>
                 </td>

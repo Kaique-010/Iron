@@ -116,6 +116,15 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-dark">
               <li>
+                <a class="dropdown-item" href="{% url 'categorias_list' %}">CATEGORIAS</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'formas_pagamento_list' %}">FORMAS DE PAGAMENTO</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'formas_recebimento_list' %}">FORMAS DE RECEBIMENTO</a>
+              </li>
+              <li>
                 <a class="dropdown-item" href="{% url 'conta_a_pagar_list' %}">DOCUMENTOS A PAGAR</a>
               </li>
               <li>
@@ -196,6 +205,9 @@
               <li>
                 <a class="dropdown-item" href="{% url 'saidaslistas' %}">SAÍDAS</a>
               </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'unidadeslistas' %}">UNIDADES DE MEDIDAS</a>
+              </li>
             </ul>
           </li>
 
@@ -217,29 +229,14 @@
               </li>
 
             </ul>
-          
-        </li>
-        
-        <!-- Menu de Usuários -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            USUÁRIOS
-            <i class="bi bi-person-check" style="font-size: 2rem"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark">
-            <li>
-              <a class="dropdown-item" href="{% url 'register_user' %}">Cadastro de Usuários</a>
-            </li>
-          </ul>
-        </li>
 
-        <br><br>
-        <li class="nav-item">
+          </li>
+
           <form action="{% url 'logout' %}" method="post" style="display: inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Logout</button>
           </form>
-        </li>
+          </li>
       </div>
     </div>
   </div>

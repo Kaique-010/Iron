@@ -3,6 +3,12 @@ from .views import (
     ContaAPagarListView, ContaAPagarDetailView, ContaAPagarCreateView, ContaAPagarUpdateView, ContaAPagarDeleteView,
     ContaAReceberListView, ContaAReceberDetailView, ContaAReceberCreateView, ContaAReceberUpdateView, ContaAReceberDeleteView, fluxo_caixa, dash,exportar_contaapagar_excel, exportar_contaareceber_excel
 )
+from Financeiro.views import (
+    FormaPagamentoListView, FormaPagamentoCreateView, FormaPagamentoUpdateView, FormaPagamentoDeleteView,
+    FormaRecebimentoListView, FormaRecebimentoCreateView, FormaRecebimentoUpdateView, FormaRecebimentoDeleteView,
+    CategoriaListView, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView,
+)
+
 
 urlpatterns = [
     path('contas_a_pagar/', ContaAPagarListView.as_view(), name='conta_a_pagar_list'),
@@ -19,4 +25,22 @@ urlpatterns = [
     path('contas_a_receber/<int:pk>/excluir/', ContaAReceberDeleteView.as_view(), name='conta_a_receber_delete'),
     path('exportarapagar/', exportar_contaapagar_excel, name='exportar_contaapagar_excel'),
     path('exportarareceber/', exportar_contaareceber_excel, name='exportar_contaareceber_excel'),
+
+
+    path('formas-pagamento/', FormaPagamentoListView.as_view(), name='formas_pagamento_list'),
+    path('formas-pagamento/novo/', FormaPagamentoCreateView.as_view(), name='formas_pagamento_create'),
+    path('formas-pagamento/editar/<int:pk>/', FormaPagamentoUpdateView.as_view(), name='formas_pagamento_update'),
+    path('formas-pagamento/excluir/<int:pk>/', FormaPagamentoDeleteView.as_view(), name='formas_pagamento_confirm_delete'),
+
+    # URLs para Formas de Recebimento
+    path('formas-recebimento/', FormaRecebimentoListView.as_view(), name='formas_recebimento_list'),
+    path('formas-recebimento/novo/', FormaRecebimentoCreateView.as_view(), name='formas_recebimento_create'),
+    path('formas-recebimento/editar/<int:pk>/', FormaRecebimentoUpdateView.as_view(), name='formas_recebimento_update'),
+    path('formas-recebimento/excluir/<int:pk>/', FormaRecebimentoDeleteView.as_view(), name='formas_recebimento_confirm_delete'),
+
+    # URLs para Categorias
+    path('categorias/', CategoriaListView.as_view(), name='categorias_list'),
+    path('categorias/novo/', CategoriaCreateView.as_view(), name='categorias_create'),
+    path('categorias/editar/<int:pk>/', CategoriaUpdateView.as_view(), name='categorias_update'),
+    path('categorias/excluir/<int:pk>/', CategoriaDeleteView.as_view(), name='categorias_confirm_delete'),
 ]

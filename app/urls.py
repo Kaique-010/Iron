@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LogoutView
 from . import views
-from .views import register_user
+#from .views import register_user
 
 urlpatterns = [
     path('home/', views.HomeView.as_view(), name='home'),
@@ -23,8 +23,8 @@ urlpatterns = [
     path('', include('Ordem_de_Servico.urls')),
     path('', views.login_view, name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
-    path('empresa-inativa/', views.empresa_inativa, name='empresa_inativa'),
-    path('register_user/', register_user, name='register_user')
+    #path('empresa-inativa/', views.empresa_inativa, name='empresa_inativa'),
+    #path('register_user/', register_user, name='register_user')
 ]
 
 if settings.DEBUG:

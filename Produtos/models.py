@@ -28,9 +28,25 @@ class Base(models.Model):
     class Meta:
         abstract = True
 
+class UnidadeMedida(models.Model):
+    descricao = models.CharField("Unidades de Medidas", max_length=100)
+    sigla = models.CharField("siglas", max_length=100)
+    
+    class Meta:
+        verbose_name = 'Unidade de Medida'
+        verbose_name_plural = 'Unidades de Medidas'
+        ordering = ['id']
+        db_table = 'unidadedemedida'
+    
+    objects = EmpresaManager()
+    
+    def __str__(self):
+        return f"{self.descricao} - {self.sigla}"
 
 class Produtos(Base):
     nome = models.CharField('Nome', max_length=50)
+    unidade_medida = models.ForeignKey(UnidadeMedida, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
+    ncm = models.CharField('NCM', max_length=8, blank=True, null=True)
     localidade = models.ForeignKey(Localidade, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
     familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
@@ -50,7 +66,7 @@ class Produtos(Base):
         db_table = 'produtos'
     
     def __str__(self):
-        return self.nome  
+        return self.nome
 
     def imagem_tag(self):
         try:
@@ -66,8 +82,8 @@ class Precos(models.Model):
     preco_compra = models.DecimalField('Preço de Compra', max_digits=10, decimal_places=2)
     preco_venda_vista = models.DecimalField('Preço de Venda à Vista', max_digits=10, decimal_places=2)
     preco_venda_prazo = models.DecimalField('Preço de Venda a Prazo', max_digits=10, decimal_places=2)
-    percentual_venda_vista = models.DecimalField('Percentual sobre Preço de Venda à Vista', max_digits=5, decimal_places=2, editable=False)
-    percentual_venda_prazo = models.DecimalField('Percentual sobre Preço de Venda a Prazo', max_digits=5, decimal_places=2, editable=False)
+    percentual_venda_vista = models.DecimalField('Percentual sobre Preço de Venda à Vista', max_digits=5, decimal_places=2)
+    percentual_venda_prazo = models.DecimalField('Percentual sobre Preço de Venda a Prazo', max_digits=5, decimal_places=2)
 
 
 
@@ -84,6 +100,8 @@ class Precos(models.Model):
         if self.preco_compra > 0:
             self.percentual_venda_vista = ((self.preco_venda_vista - self.preco_compra) / self.preco_compra) * 100
             self.percentual_venda_prazo = ((self.preco_venda_prazo - self.preco_compra) / self.preco_compra) * 100
+        print(f'Percentual Venda Vista: {self.percentual_venda_vista}')
+        print(f'Percentual Venda Prazo: {self.percentual_venda_prazo}')
 
     def save(self, *args, **kwargs):
         self.clean()

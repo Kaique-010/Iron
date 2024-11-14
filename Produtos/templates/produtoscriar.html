@@ -1,47 +1,262 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Cadastrar Produtos
+Cadastrar Produto
 {% endblock %}
-<br>
-<br>
+
 {% block content %}
-<br>
-<br>
+
 <style>
-    h3{
+    h3 {
         text-align: center;
         color: rgb(225, 211, 193);
-
     }
+
     .form {
         border-width: 2px;
-        border-color: #5d88b6; /* Cor da borda */
-        border-style: solid;   /* Estilo da borda, pode ser solid, dashed, etc. */
-    }
-    .card {
-        border-width: 2px;
-        border-color: #5d88b6; /* Cor da borda */
+        border-color: #5d88b6;
         border-style: solid;
-        background: linear-gradient(#0f0f0f, #53524f); /* Gradiente de fundo */
+        padding: 1%;
+        margin: 1px;
+    }
+
+    .card {
+        border-width: 1px;
+        border-color: #ced4da;
+        background: linear-gradient(#0f0f0f, #53524f);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .row {
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #ced4da;
+    }
+
+    input,
+    select,
+    textarea {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .percent-display {
+        background-color: #e9f7ef;
+        border-radius: 5px;
+        padding: 5px;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #43768a;
+        color: white;
+        border-color:rgb(225, 211, 193);
     }
 </style>
+
 <div class="card">
-<div class="container-mt-4">
-    <h3 class="display-8"> Cadastrar Produtos <i class="bi bi-box"></i></h3>
+    <div class="container-mt-4">
+        <h3 class="display-8">Cadastrar Produto <i class="bi bi-box"></i></h3>
+    </div>
 </div>
-</div>
-    <div class="card">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data" class="form">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary"> Salvar Produto</button>
-            </form>
-        </div>  
-    </div>  
-    <br>
-    <a href="{% url 'produtoslistas'%}" class="btn btn-secondary mt2">Voltar Para Lista de Produtos</a>
-</div>  
+
+<!-- Abas de navegação -->
+<ul class="nav nav-tabs" id="productTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="product-info-tab" data-bs-toggle="tab" data-bs-target="#product-info"
+            type="button" role="tab" aria-controls="product-info" aria-selected="true">Informações do Produto</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="price-info-tab" data-bs-toggle="tab" data-bs-target="#price-info" type="button"
+            role="tab" aria-controls="price-info" aria-selected="false">Preços</button>
+    </li>
+</ul>
+
+<form method="post" enctype="multipart/form-data" class="form">
+    {% csrf_token %}
+    <!-- Conteúdo das abas -->
+    <div class="tab-content card p-4 mt-2" id="productTabContent">
+
+        <!-- Aba do Produto -->
+        <div class="tab-pane fade show active" id="product-info" role="tabpanel" aria-labelledby="product-info-tab">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.nome.label_tag }}
+                                {{ form.nome }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.unidade_medida.label_tag }}
+                                {{ form.unidade_medida }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.ncm.label_tag }}
+                                {{ form.ncm }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.marca.label_tag }}
+                                {{ form.marca }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.grupo.label_tag }}
+                                {{ form.grupo }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.familia.label_tag }}
+                                {{ form.familia }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.localidade.label_tag }}
+                                {{ form.localidade }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.tamanho.label_tag }}
+                                {{ form.tamanho }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.peso.label_tag }}
+                                {{ form.peso }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.quantidade.label_tag }}
+                                {{ form.quantidade }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.descricao.label_tag }}
+                                {{ form.descricao }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.imagem.label_tag }}
+                                {{ form.imagem }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Preços -->
+        <div class="tab-pane fade" id="price-info" role="tabpanel" aria-labelledby="price-info-tab">
+            <div class="card">
+                <div class="card-body">
+                    {{ precos_form.as_p }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.percentual_venda_vista.label_tag }}
+                                <div class="input-group">
+                                    {{ form.percentual_venda_vista }}
+                                    <span class="input-group-text percent-display">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.percentual_venda_prazo.label_tag }}
+                                <div class="input-group">
+                                    {{ form.percentual_venda_prazo }}
+                                    <span class="input-group-text percent-display">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Salvar Produto e Preços</button>
+        <a href="{% url 'produtoslistas' %}" class="btn btn-secondary">Voltar Para Lista de Produtos</a>
+    </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const precoCompraInput = document.getElementById("id_preco_compra");
+        const precoVendaVistaInput = document.getElementById("id_preco_venda_vista");
+        const precoVendaPrazoInput = document.getElementById("id_preco_venda_prazo");
+        const percentualVendaVistaInput = document.getElementById("id_percentual_venda_vista");
+        const percentualVendaPrazoInput = document.getElementById("id_percentual_venda_prazo");
+
+        function calculatePercentual(precoCompra, precoVenda) {
+            if (precoCompra > 0) {
+                return ((precoVenda - precoCompra) / precoCompra * 100).toFixed(2);
+            }
+            return 0;
+        }
+
+        function highlightChange(element) {
+            element.style.transition = "background-color 0.3s ease";
+            element.style.backgroundColor = "#e9f7ef";
+            setTimeout(() => {
+                element.style.backgroundColor = "";
+            }, 300);
+        }
+
+        function updatePercentuais() {
+            const precoCompra = parseFloat(precoCompraInput.value) || 0;
+            const precoVendaVista = parseFloat(precoVendaVistaInput.value) || 0;
+            const precoVendaPrazo = parseFloat(precoVendaPrazoInput.value) || 0;
+
+            percentualVendaVistaInput.value = calculatePercentual(precoCompra, precoVendaVista);
+            percentualVendaPrazoInput.value = calculatePercentual(precoCompra, precoVendaPrazo);
+
+            highlightChange(percentualVendaVistaInput);
+            highlightChange(percentualVendaPrazoInput);
+        }
+
+        precoCompraInput.addEventListener("input", updatePercentuais);
+        precoVendaVistaInput.addEventListener("input", updatePercentuais);
+        precoVendaPrazoInput.addEventListener("input", updatePercentuais);
+    });
+</script>
 
 {% endblock %}

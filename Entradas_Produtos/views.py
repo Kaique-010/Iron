@@ -22,17 +22,18 @@ class EntradasListView(ListView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)  
         
+        
+
         
         queryset = super().get_queryset()
-        produto = self.request.GET.get('produto')
-    
-        if produto:
-            queryset = queryset.filter(produto__nome__icontains=produto)
-        
-        return queryset
+        nome = self.request.GET.get('nome')
 
+        if nome:
+            queryset = queryset.filter(nome__icontains=nome)
+
+        return queryset
 
 class EntradasCreateView(CreateView):
     model = models.Entrada_Produtos

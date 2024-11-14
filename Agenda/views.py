@@ -161,22 +161,35 @@ def eventos_futuros_json(request):
             data_inicio__lte=timezone.now() + timedelta(days=30)
         ).order_by('data_inicio')
 
-        eventos = [
-            {
+        eventos = []
+        for evento in eventos_futuros:
+            # Verifique se 'data_inicio' é válida
+            # Exemplo de ajuste no backend
+            if evento.data_inicio:
+                inicio = evento.data_inicio
+                fim = evento.data_fim
+                horario = evento.horario.strftime("%H:%M") 
+            else:
+                inicio = 'Data inválida'
+                fim = 'Data inválida'
+                horario = 'Não especificado'
+
+            # Continue com o retorno dos dados:
+            eventos.append({
                 'id': evento.id,
                 'titulo': evento.titulo,
-                'inicio': evento.data_inicio.isoformat(),
-                'fim': (evento.data_inicio + timedelta(hours=1)).isoformat(),
+                'inicio': inicio,
+                'fim': fim,
+                'horario': horario,  
                 'local': evento.local,
                 'descricao': evento.descricao,
-            }
-            for evento in eventos_futuros
-        ]
+            })
+        
         return JsonResponse({'eventos': eventos}, status=200)
 
     except Exception as e:
         return JsonResponse({'error': f'Erro ao recuperar eventos: {str(e)}'}, status=500)
-
+    
 
 @login_required 
 def eventos_futuros(request):

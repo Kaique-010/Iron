@@ -6,11 +6,49 @@ Contas a Receber
 {% endblock %}
 
 {% block content %}
+
+<style>
+    h3 {
+        color: rgb(225, 211, 193);
+        text-align: center;
+    }
+
+    th,
+    td {
+        text-align: center;
+    }
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .bi-eye{
+        color: azure;
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+</style>
 <div class="container-fluid">
     <!-- Header Card -->
     <div class="card mb-4" style="background-color: rgb(28, 33, 35);">
         <div class="card-body text-center">
-            <h3 class="text-light">Contas a Receber</h3>
+            <h3>Contas a Receber</h3>
             <i class="bi bi-graph-up-arrow" style="font-size: 2rem; color: rgb(10, 119, 177);"></i>
         </div>
     </div>
@@ -93,13 +131,13 @@ Contas a Receber
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'conta_a_receber_detail' conta.id %}" class="btn btn-info btn-sm">
+                        <a href="{% url 'conta_a_receber_detail' conta.id %}" class="btn btn-info btn-sm" title="Detalhes" data-bs-toggle="tooltip" data-bs-placement="top">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="{% url 'conta_a_receber_update' conta.id %}" class="btn btn-warning btn-sm">
+                        <a href="{% url 'conta_a_receber_update' conta.id %}" class="btn btn-warning btn-sm" title="Editar" data-bs-toggle="tooltip" data-bs-placement="top">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <a href="{% url 'conta_a_receber_delete' conta.id %}" class="btn btn-danger btn-sm">
+                        <a href="{% url 'conta_a_receber_delete' conta.id %}" class="btn btn-danger btn-sm"title="Excluir" data-bs-toggle="tooltip" data-bs-placement="top">
                             <i class="bi bi-trash"></i>
                         </a>
                     </td>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Produtos, Precos
+from .models import Produtos, Precos, UnidadeMedida
 
 class ProdutosAdmin(admin.ModelAdmin):
     list_display = ('id','ativo','nome', 'grupo', 'familia', 'imagem_tag')
@@ -22,3 +22,9 @@ admin.site.register(Produtos, ProdutosAdmin)
 class PrecosAdmin(admin.ModelAdmin):
     list_display = ['produto', 'preco_compra', 'preco_venda_vista', 'preco_venda_prazo', 'percentual_venda_vista', 'percentual_venda_prazo']
     search_fields = ['produto__nome']
+
+
+@admin.register(UnidadeMedida)
+class UnidadeMedidaAdmin(admin.ModelAdmin):
+    list_display = ['id', 'descricao', 'sigla']
+    search_fields = ['id', 'descricao', 'sigla']

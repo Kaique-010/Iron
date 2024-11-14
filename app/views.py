@@ -68,6 +68,7 @@ def login_view(request):
 
                         messages.success(request, "Login realizado com sucesso.")
                         print("Sessão após login:", request.session.items())
+                        logger.debug(f'Sessão após login: {request.session.items()}')
                         return redirect('home')  # Nome da URL de redirecionamento após o login
                     else:
                         messages.error(request, "Credenciais inválidas ou empresa incorreta.")
@@ -86,7 +87,7 @@ def logout_view(request):
     return redirect('login')
 
 
-'''def calcular_metricas_produtos(request):
+def calcular_metricas_produtos(request):
     
     empresa_banco = request.session.get("empresa_database", None)
     
@@ -124,15 +125,31 @@ def logout_view(request):
         'total_quantidade_entradas': total_quantidade_entradas,
         'total_quantidade_saidas': total_quantidade_saidas,
         'total_movimentacoes': total_movimentacoes,
-    }'''
+    }
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
-        #metricas = calcular_metricas_produtos(request)
+        empresa_database = request.session.get("empresa_database")
+        
+        # Redirecionar para login se `empresa_database` não estiver definido
+        if not empresa_database:
+            messages.error(request, "Sessão expirada ou empresa não selecionada. Por favor, faça login novamente.")
+            return redirect('login')
+        
+        # Calcular métricas apenas se `empresa_database` estiver definido
+        try:
+            metricas = calcular_metricas_produtos(request)
+        except ValueError as e:
+            # Log e redirecionar se ocorrer erro com `empresa_database`
+            logger.error(str(e))
+            messages.error(request, "Erro ao acessar os dados da empresa.")
+            return redirect('login')
+        
         usuario_nome = request.session.get('usuario_nome', 'Usuário não encontrado')
         empresa_nome = request.session.get('empresa_name', 'Empresa não definida')  
+        
         context = {
-            #'produtos_metricas': metricas,
+            'produtos_metricas': metricas,
             'mostrar_modal': True,
             'usuario_nome': usuario_nome,
             'empresa_nome': empresa_nome,
@@ -148,7 +165,7 @@ class ListarEventos(View):
         return render(request, 'listar_eventos.html', {'eventos': eventos})
 
 
-@user_passes_test(lambda u: u.is_superuser)
+'''@user_passes_test(lambda u: u.is_superuser)
 def register_user(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -181,3 +198,4 @@ def register_user(request):
 def empresa_inativa(request):
     # Retorne uma resposta informando que a empresa não está ativa
     return render(request, 'empresa_inativa.html')
+'''

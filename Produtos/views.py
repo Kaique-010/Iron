@@ -3,7 +3,10 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 from . import models, forms
 from .models import Produtos
 from django.urls import reverse_lazy
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
+from django.shortcuts import redirect
+from django.db import IntegrityError
 from django.db.models import Sum
 
 
@@ -50,14 +53,35 @@ class ProdutosCreateView(CreateView):
     form_class = forms.Produtos
     success_url = reverse_lazy('produtoslistas')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['precos_form'] = forms.PrecosForm(self.request.POST)
+        else:
+            context['precos_form'] = forms.PrecosForm()
+        return context
+
     def form_valid(self, form):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)
         form.instance.empresa = self.request.user.empresa
-        return super().form_valid(form)
 
+        context = self.get_context_data()
+        precos_form = context['precos_form']
+
+        if form.is_valid() and precos_form.is_valid():
+            self.object = form.save()
+            
+            preco = precos_form.save(commit=False)
+            preco.produto = self.object
+            preco.clean()  
+            preco.save()
+            
+            return redirect(self.success_url)
+        
+        return self.form_invalid(form)
 
 class ProdutosDetailView(DetailView):
     model = models.Produtos
@@ -84,6 +108,7 @@ class ProdutosUpdateView(UpdateView):
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
         return super().form_valid(form)
 
+
 class ProdutosDeleteView(DeleteView):
     model = models.Produtos
     template_name = 'produtosexcluir.html'
@@ -94,4 +119,84 @@ class ProdutosDeleteView(DeleteView):
             raise IntegrityError("Usuário não associado a uma empresa")
         
         set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        return super().get_object()
+    
+
+
+class UnidadesListView(ListView):
+    model = models.UnidadeMedida
+    form_class = forms.Unidades
+    template_name = 'unidadeslistas.html'
+    context_object_name = 'unidades'
+    paginate_by = 10
+
+    def get_queryset(self):
+        set_empresa_database(self.request.user.empresa)  # Configura o banco com base na empresa do usuário
+        
+        queryset = super().get_queryset()
+        descricao = self.request.GET.get('descricao')
+        
+        if descricao:
+            queryset = queryset.filter(descricao__icontains=descricao)
+        
+        return queryset
+
+
+
+class UnidadesCreateView(CreateView):
+    model = models.UnidadeMedida
+    template_name = 'unidadescriar.html'
+    form_class = forms.Unidades
+    success_url = reverse_lazy('unidadeslistas')
+
+    def form_valid(self, form):
+       
+        if not self.request.user.is_authenticated:
+            return redirect('login') 
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
+        return super().form_valid(form)
+
+
+
+class UnidadesUpdateView(UpdateView):
+    model = models.UnidadeMedida
+    template_name = 'unidadescriar.html'
+    form_class = forms.Unidades
+    success_url = reverse_lazy('unidadeslistas')
+
+    def form_valid(self, form):
+       
+        if not self.request.user.is_authenticated:
+            return redirect('login') 
+        
+        
+        if not hasattr(self.request.user, 'empresa') or not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        
+        return super().form_valid(form)
+
+
+
+class UnidadesDeleteView(DeleteView):
+    model = models.UnidadeMedida
+    template_name = 'unidadesexcluir.html'
+    success_url = reverse_lazy('unidadeslistas')
+
+    def get_object(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        
+        set_empresa_database(self.request.user.empresa) 
         return super().get_object()

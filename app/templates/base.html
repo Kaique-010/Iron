@@ -88,13 +88,21 @@
               data.eventos.forEach((evento) => {
                 const eventoItem = document.createElement('div')
                 eventoItem.classList.add('alert', 'alert-info', 'mb-2')
+
+                // Verificação se a data de início é válida
+                const dataInicio = new Date(evento.inicio)
+                const horario = evento.horario ? evento.horario : 'Não especificado'
+
+                // Verificar se a data de início é válida
+                const dataInicioFormatada = !isNaN(dataInicio) ? dataInicio.toLocaleString() : 'Data inválida'
+
                 eventoItem.innerHTML = `
-                    <strong>${evento.titulo}</strong><br>
-                    Início: ${new Date(evento.data_inicio).toLocaleString()} +GMT<br>
-                    Horário: ${evento.horario}<br>
-                    Local: ${evento.local || 'Não especificado'}<br>
-                    Descrição: ${evento.descricao || 'Sem descrição'}
-                  `
+                  <strong>${evento.titulo}</strong><br>
+                  Início: ${dataInicioFormatada} +GMT<br>
+                  Horário: ${horario}<br>
+                  Local: ${evento.local || 'Não especificado'}<br>
+                  Descrição: ${evento.descricao || 'Sem descrição'}
+                `
                 eventosList.appendChild(eventoItem)
               })
 

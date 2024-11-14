@@ -15,23 +15,36 @@ def set_empresa_database(empresa):
     if db_alias not in connections:
         raise IntegrityError(f"Banco de dados {db_alias} não configurado.")
     connections['default'] = connections[db_alias]
+    
+    
+class EmpresaBaseView:
+    """
+    Classe base para configurar a empresa e banco de dados de cada view.
+    """
+    def set_empresa(self):
+        if not self.request.user.empresa:
+            raise IntegrityError("Usuário não associado a uma empresa")
+        set_empresa_database(self.request.user.empresa)
+        
 
-class PessoasListView(LoginRequiredMixin, ListView):
+class PessoasListView(EmpresaBaseView, ListView):
     model = models.Pessoas
     template_name = 'pessoaslistas.html'
     context_object_name = 'pessoas'
     paginate_by = 10
 
     def get_queryset(self):
-        print(f"Empresa do usuário: {self.request.user.empresa}")
-        if not self.request.user.empresa:
-            raise IntegrityError("Usuário não associado a uma empresa")
-        set_empresa_database(self.request.user.empresa)
+        self.set_empresa()  
         queryset = super().get_queryset()
         nome = self.request.GET.get('nome')
+        
         if nome:
             queryset = queryset.filter(nome__icontains=nome)
+        
         return queryset
+    
+    
+
 
 class PessoasCreateView(CreateView):
     model = models.Pessoas
@@ -43,13 +56,11 @@ class PessoasCreateView(CreateView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        # Configura o banco de dados da empresa do usuário logado
         set_empresa_database(self.request.user.empresa)
         
-        # Define a empresa para o objeto Pessoas
         form.instance.empresa = self.request.user.empresa
         
-        # Obtém os dados do endereço, se necessário
+       
         cep = form.cleaned_data.get('cep')
         dados_endereco = buscar_cep(cep)
 
@@ -157,3 +168,6 @@ def buscar_cep(cep):
             return response.json()
     except requests.RequestException:
         return None
+
+
+

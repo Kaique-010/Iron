@@ -1,10 +1,136 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>{% if form.instance.pk %}Editar Conta a Receber{% else %}Adicionar Conta a Receber{% endif %}</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar</button>
+<style>
+  .container {
+    margin-top: 3%;
+  }
+
+  h2 {
+    text-align: center;
+    color: rgb(244, 217, 181);
+  }
+
+  .card {
+    border-radius: 10px;
+    border-color: rgb(245, 239, 215);
+    padding: 1rem;
+    margin-bottom: 1%;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-left: 8px;
+    background-color: #2d8280;
+    color: #fffbfb;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .btn-secondary:hover {
+    background-color: #287959;
+    color: #fff;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-left: 8px;
+    background-color: #39944d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .btn-primary:hover {
+    background-color: #f2e06d;
+    color: #fff;
+  }
+
+  .bi-calculator {
+    color: rgb(184, 233, 193);
+  }
+</style>
+<h2>
+  {% if form.instance.pk %}Editar Conta a Pagar{% else %}Inserir Conta a Receber{% endif %}
+  <i class="bi bi-calculator"></i>
+</h2>
+
+<div class="container">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="documento" class="form-label text-white"> Documento:</label>
+          {{ form.documento }}
+        </div>
+        <div class="col-md-3"></div><br>
+        <div class="col-md-3">
+          <label for="status" class="form-label text-white"> Recebido: :</label>
+          {{ form.status_recebimento }}
+        </div>
+
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="data_emissao" class="form-label text-white">Data Emissão:</label>
+          {{ form.data_emissao }}
+        </div>
+
+        <div class="col-md-6">
+          <label for="data_vencimento" class="form-label text-white">Data Vencimento:</label>
+          {{ form.data_vencimento }}
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="parcela" class="form-label text-white">Nº da Parcela:</label>
+          {{ form.parcela }}
+        </div>
+
+        <div class="col-md-6">
+          <label for="descricao" class="form-label text-white">Descrição:</label>
+          {{ form.descricao }}
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="valor" class="form-label text-white">Valor R$:</label>
+          {{ form.valor }}
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="pessoas" class="form-label text-white">Recebedor:</label>
+          {{ form.pessoas }}
+        </div>
+
+        <div class="col-md-6">
+          <label for="descricao" class="form-label text-white">Categoria:</label>
+          {{ form.categorias }}
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <label for="observacoes" class="form-label text-white">Observações do titulo</label>
+          {{ form.observacoes }}
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <label for="forma_pagamento" class="form-label text-white">Forma de Recebimento</label>
+          {{ form.forma_recebimento }}
+        </div>
+      </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+
+  <a href="{% url 'conta_a_receber_list' %}" class="btn btn-secondary">Voltar</a>
   </form>
-{% endblock %}
+  {% endblock %}

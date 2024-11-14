@@ -8,16 +8,38 @@ Lista de Eventos
 <style>
     h3 {
         color: rgb(225, 211, 193);
+        text-align: center;
     }
-    .bi-calendar{
-        color: blanchedalmond;
+
+    th,
+    td {
+        text-align: center;
     }
-</style>
-<br>
-<br>
-<style>
-    h3 {
-        color: antiquewhite;
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .bi-eye{
+        color: azure;
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
     }
 </style>
 <div class="container-fluid"></div>
@@ -75,16 +97,17 @@ Lista de Eventos
                 <td>{{ evento.responsavel }}</td>
 
                 <td>
-                    <a href="{% url 'detalhe_evento' evento.id %}" class="btn btn-info btn-sm">
+                    <a href="{% url 'detalhe_evento' evento.id %}" class="btn btn-info btn-sm" title="Visualizar Detalhes" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="{% url 'editar_evento' evento.id %}" class="btn btn-warning btn-sm">
+                    <a href="{% url 'editar_evento' evento.id %}" class="btn btn-warning btn-sm" title="Editar Evento" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a href="{% url 'excluir_evento' evento.id %}" class="btn btn-danger btn-sm">
+                    <a href="{% url 'excluir_evento' evento.id %}" class="btn btn-danger btn-sm" title="Excluir Evento" data-bs-toggle="tooltip" data-bs-placement="top">
                         <i class="bi bi-trash"></i>
                     </a>
                 </td>
+                
             </tr>
             {% empty %}
             <tr>

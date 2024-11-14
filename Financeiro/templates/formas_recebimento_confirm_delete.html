@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Excluir Forma de Recebimento</h1>
+  <p>Tem certeza de que deseja excluir a forma de recebimento "{{ object.nome }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Sim, excluir</button>
+  </form>
+  <a href="{% url 'formas_recebimento_list' %}">Cancelar</a>
+{% endblock %}
