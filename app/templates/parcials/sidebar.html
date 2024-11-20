@@ -108,6 +108,19 @@
               <!-- Adicione outros itens de menu aqui se necessário -->
             </ul>
           </li>
+
+          <!-- Menu de Entradas Fiscais -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              ENTRADAS FISCAIS
+              <i class="bi bi-hammer" style="font-size: 2rem"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li>
+                <a class="dropdown-item" href="{% url 'cfop_lista' %}">CFOP's</a>
+              </li>
+            </ul>
+          </li>
           <!-- Menu de Financeiro -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -231,7 +244,18 @@
             </ul>
 
           </li>
-
+          <!-- Menu de Saídas Fiscais -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              SAÍDAS FISCAIS
+              <i class="bi bi-hammer" style="font-size: 2rem"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li>
+                <a class="dropdown-item" href="{% url 'cfop_lista' %}">CFOP's</a>
+              </li>
+            </ul>
+          </li>
           <form action="{% url 'logout' %}" method="post" style="display: inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Logout</button>

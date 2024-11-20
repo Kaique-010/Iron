@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>{% if object %}Editar{% else %}Cadastrar{% endif %} CFOP</h1>
+
+  <!-- Abas -->
+  <ul class="nav nav-tabs" id="cfopTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="descricao-tab" data-bs-toggle="tab" href="#descricao" role="tab" aria-controls="descricao" aria-selected="true">Descrição CFOP</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="tributacao-tab" data-bs-toggle="tab" href="#tributacao" role="tab" aria-controls="tributacao" aria-selected="false">Tributações</a>
+    </li>
+  </ul>
+
+  <!-- Conteúdo das Abas -->
+  <form method="post">
+    {% csrf_token %}
+    <div class="tab-content" id="cfopTabContent">
+
+      <!-- Aba Descrição CFOP -->
+      <div class="tab-pane fade show active" id="descricao" role="tabpanel" aria-labelledby="descricao-tab">
+        <div class="row">
+          <div class="col-md-6">
+            {% for field in form.visible_fields %}
+              {% if field.name in "cfop descricao_fiscal finalidade" %}
+              <div class="mb-3">
+                <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba Tributações -->
+      <div class="tab-pane fade" id="tributacao" role="tabpanel" aria-labelledby="tributacao-tab">
+        <div class="row">
+          <div class="col-md-6">
+            {% for field in form.visible_fields %}
+              {% if field.name in "aplica_icms aplica_pis aplica_cofins aplica_ipi" %}
+              <div class="mb-3">
+                <label class="form-check-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            {% for field in form.visible_fields %}
+              {% if field.name not in "cfop descricao_fiscal finalidade aplica_icms aplica_pis aplica_cofins aplica_ipi" %}
+              <div class="mb-3">
+                <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">
+      {% if object %}Salvar Alterações{% else %}Cadastrar{% endif %}
+    </button>
+  </form>
+</div>
+{% endblock %}

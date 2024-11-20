@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Lista de CFOPs
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        color: rgb(225, 211, 193);
+        text-align: center;
+    }
+
+    th,
+    td {
+        text-align: center;
+    }
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .bi-eye {
+        color: azure;
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+</style>
+
+<div class="container-fluid"></div>
+<div class="card">
+    <center>
+        <h3>Lista de CFOPs</h3>
+    </center>
+</div>
+
+<div class="container-fluid"></div>
+<div class="col md-4">
+    <div class="row mb-4"></div>
+    <a href="{% url 'cfop_cadastrar' %}" class="btn btn-success float-end">
+        <i class="bi bi-plus"></i> Novo CFOP
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <form method="get" action="{% url 'cfop_lista' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="codigo" placeholder="Código ou Descrição" value="{{ request.GET.codigo }}">
+                <button class="btn btn-primary" type="submit">Pesquisar
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Descrição Fiscal</th>
+                <th>Tipo de Operação</th>
+                <th>Natureza da Operação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cfop in cfops %}
+            <tr>
+                <td>{{ cfop.codigo }}</td>
+                <td>{{ cfop.descricao }}</td>
+                <td>{{ cfop.tipo_operacao|title }}</td>
+                <td>{{ cfop.natureza_operacao }}</td>
+                <td>
+                    <a href="{% url 'cfop_detalhe' cfop.id %}" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'cfop_editar' cfop.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'cfop_excluir' cfop.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Nenhum CFOP encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'parcials/pagination.html' %}
+
+{% endblock %}

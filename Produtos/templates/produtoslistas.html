@@ -89,6 +89,8 @@ Lista de Produtos
         color: white;
         font-size: 30px;
         text-decoration: none;
+        cursor: pointer;
+        z-index: 1001; /* Garante que esteja acima do conteúdo */
     }
 </style>
 <div class="container-fluid"></div>
@@ -204,17 +206,32 @@ Lista de Produtos
         const lightbox = document.querySelector('.lightbox');
         const lightboxImage = document.querySelector('.lightbox-image');
         const closeBtn = document.querySelector('.lightbox-close');
-
+    
+        if (!lightbox || !closeBtn) {
+            console.error("Lightbox ou botão de fechamento não encontrado!");
+            return;
+        }
+    
+        // Abrir o lightbox ao clicar na imagem
         galleryImages.forEach(image => {
             image.addEventListener('click', () => {
+                if (!image.src) return;
                 lightboxImage.src = image.src;
                 lightbox.style.display = 'flex';
             });
         });
-
+    
+        // Fechar o lightbox
         closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             lightbox.style.display = 'none';
+        });
+    
+        // Fechar o lightbox clicando fora da imagem
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.style.display = 'none';
+            }
         });
     });
 </script>

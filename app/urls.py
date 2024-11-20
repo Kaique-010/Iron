@@ -21,6 +21,7 @@ urlpatterns = [
     path('', include('Financeiro.urls')),
     path('', include('Agenda.urls')),
     path('', include('Ordem_de_Servico.urls')),
+    path('', include('CFOP.urls')),
     path('', views.login_view, name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     #path('empresa-inativa/', views.empresa_inativa, name='empresa_inativa'),
