@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Lista de Ordens de Produção
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        color: rgb(225, 211, 193);
+        text-align: center;
+    }
+
+    th,
+    td {
+        text-align: center;
+    }
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .bi-eye {
+        color: azure;
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+</style>
+
+<div class="container-fluid"></div>
+<div class="card">
+    <center>
+        <h3>Lista de Ordens de Produção</h3>
+    </center>
+</div>
+
+<div class="container-fluid"></div>
+<div class="col md-4">
+    <div class="row mb-4"></div>
+    <a href="{% url 'OrdemProducao:create' %}" class="btn btn-success float-end">
+        <i class="bi bi-plus"></i> Nova Ordem
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="row mb-4"></div>
+        <form method="get" action="{% url 'OrdemProducao:ordem_list' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="numero_ordem" placeholder="Número da Ordem" value="{{ request.GET.numero_ordem }}">
+                <button class="btn btn-primary" type="submit">Pesquisar
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>Número Produção</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ordem in ordens %}
+            <tr>
+                <td>{{ ordem.numero_ordem }}</td>
+                <td>{{ ordem.produto.nome }}</td>
+                <td>{{ ordem.quantidade }}</td>
+                <td>{{ ordem.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'OrdemProducao:detail' ordem.id %}" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'OrdemProducao:etapas' ordem.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'OrdemProducao:confirm_delete' ordem.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Nenhuma ordem encontrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'parcials/pagination.html' %}
+
+{% endblock %}

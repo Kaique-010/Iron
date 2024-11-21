@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Gerenciar Etapas da Ordem {{ ordem.numero_ordem }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+        {{ formset.as_table }}
+    </table>
+    <button type="submit" class="btn btn-success">Salvar Etapas</button>
+</form>
+{% endblock %}

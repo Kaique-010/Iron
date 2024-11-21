@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Ordem de Produção
+{% endblock %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+        color: rgb(225, 211, 193);
+    }
+
+    .form {
+        border-width: 2px;
+        border-color: #5d88b6;
+        border-style: solid;
+        padding: 4%;
+        margin: 1px;
+    }
+
+    .card {
+        border-width: 1px;
+        border-color: #ced4da;
+        background: linear-gradient(#0f0f0f, #53524f);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #fefeff;
+    }
+
+    input,
+    select,
+    textarea {
+        background-color: #27425e;
+        border-radius: 5px;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #43768a;
+        color: white;
+        border-color: rgb(225, 211, 193);
+    }
+</style>
+
+<div class="card">
+    <div class="container-mt-4">
+        <h3 class="display-8">Ordem de Produção <i class="bi bi-arrow-up"></i></h3>
+    </div>
+</div>
+
+<!-- Abas de navegação -->
+<ul class="nav nav-tabs" id="productTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="order-info-tab" data-bs-toggle="tab" data-bs-target="#order-info"
+            type="button" role="tab" aria-controls="order-info" aria-selected="true">Informações da Ordem</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="steps-info-tab" data-bs-toggle="tab" data-bs-target="#steps-info" type="button"
+            role="tab" aria-controls="steps-info" aria-selected="false">Etapas</button>
+    </li>
+</ul>
+
+<form method="post" enctype="multipart/form-data" class="form">
+    {% csrf_token %}
+    <!-- Conteúdo das abas -->
+    <div class="tab-content card p-4 mt-2" id="productTabContent">
+
+        <!-- Aba Informações da Ordem -->
+        <div class="tab-pane fade show active" id="order-info" role="tabpanel" aria-labelledby="order-info-tab">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.status.label_tag }}
+                                {{ form.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            
+                            <div class="form-group">
+                                {{ form.data_criacao.label_tag }}
+                                {{ form.data_criacao }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.data_prevista_finalizacao.label_tag }}
+                                {{ form.data_prevista_finalizacao }}
+                            </div>
+                        </div>
+                       
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.numero_ordem.label_tag }}
+                                {{ form.numero_ordem }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.cliente.label_tag }}
+                                {{ form.cliente }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.produto.label_tag }}
+                                {{ form.produto }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.quantidade.label_tag }}
+                                {{ form.quantidade }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.unidade_medida.label_tag }}
+                                {{ form.unidade_medida }}
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.responsavel_atual.label_tag }}
+                                {{ form.responsavel_atual }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <!-- Aba Etapas -->
+<div class="tab-pane fade" id="steps-info" role="tabpanel" aria-labelledby="steps-info-tab">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Etapas da Produção</h5>
+
+            <!-- Formulário para adicionar nova etapa -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ etapa_form.etapa.label_tag }}
+                            {{ etapa_form.etapa }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ etapa_form.status.label_tag }}
+                            {{ etapa_form.status }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ etapa_form.responsavel.label_tag }}
+                            {{ etapa_form.responsavel }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ etapa_form.data_inicio.label_tag }}
+                            {{ etapa_form.data_inicio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ etapa_form.data_conclusao.label_tag }}
+                            {{ etapa_form.data_conclusao }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ etapa_form.materias_primas_consumidas.label_tag }}
+                    {{ etapa_form.materias_primas_consumidas }}
+                </div>
+
+                <div class="form-group">
+                    {{ etapa_form.observacoes.label_tag }}
+                    {{ etapa_form.observacoes }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Salvar Etapa</button>
+            </form>
+
+            
+</div>
+</form>
+
+
+{% endblock %}

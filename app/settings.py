@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'Empresas',
     'CFOP',
+    'OrdemProducao',
 
 ]
 

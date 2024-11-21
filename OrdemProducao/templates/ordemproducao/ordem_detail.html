@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Detalhes da Ordem: {{ ordem.numero_ordem }}</h2>
+<p>Produto: {{ ordem.produto.nome }}</p>
+<p>Quantidade: {{ ordem.quantidade }}</p>
+<p>Status: {{ ordem.get_status_display }}</p>
+<p>Etapas:</p>
+<ul>
+    <div>
+        <h3>Etapas</h3>
+        <a href="{% url 'OrdemProducao:etapas' ordem.id %}" class="btn btn-primary">Gerenciar Etapas</a>
+        <ul>
+            {% for etapa in ordem.etapas.all %}
+                <li>
+                    {{ etapa.etapa.nome }} - Status: {{ etapa.get_status_display }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

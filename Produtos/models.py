@@ -44,20 +44,31 @@ class UnidadeMedida(models.Model):
         return f"{self.descricao} - {self.sigla}"
 
 class Produtos(Base):
+    TIPO_PRODUTO_CHOICES = [
+        ('USO_CONSUMO', 'Uso e Consumo'),
+        ('VENDA', 'Produto de Venda'),
+        ('MATERIA_PRIMA', 'Matéria-Prima'),
+        ('LOCACAO', 'Produto de Locação'),
+    ]
+
     nome = models.CharField('Nome', max_length=50)
-    unidade_medida = models.ForeignKey(UnidadeMedida, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
+    tipo_produto = models.CharField(
+        'Tipo de Produto',
+        max_length=20,
+        choices=TIPO_PRODUTO_CHOICES,
+        default='VENDA'
+    )
+    unidade_medida = models.ForeignKey(UnidadeMedida, on_delete=models.PROTECT, related_name='produtos', blank=True, null=True)
     ncm = models.CharField('NCM', max_length=8, blank=True, null=True)
-    localidade = models.ForeignKey(Localidade, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
-    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
-    grupo = models.ForeignKey(Grupo, on_delete=models.PROTECT, related_name='produtos',blank= True, null=True)
-    marca = models.ForeignKey(Marcas, on_delete=models.PROTECT, related_name='produtos', blank= True, null=True)
+    localidade = models.ForeignKey(Localidade, on_delete=models.PROTECT, related_name='produtos', blank=True, null=True)
+    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name='produtos', blank=True, null=True)
+    grupo = models.ForeignKey(Grupo, on_delete=models.PROTECT, related_name='produtos', blank=True, null=True)
+    marca = models.ForeignKey(Marcas, on_delete=models.PROTECT, related_name='produtos', blank=True, null=True)
     imagem = StdImageField('Imagem', upload_to='produtos', variations={'thumbnail': (150, 150)}, blank=False, null=False)
     tamanho = models.CharField('Tamanho', max_length=10, blank=True, null=True)
     peso = models.DecimalField('Peso (em gramas)', max_digits=6, decimal_places=2, blank=False, null=False)
     quantidade = models.IntegerField(default=0)
-    descricao = models.TextField('Descrição', max_length=100, blank= True, null= True)
-
-    
+    descricao = models.TextField('Descrição', max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Produto'
@@ -66,7 +77,7 @@ class Produtos(Base):
         db_table = 'produtos'
     
     def __str__(self):
-        return self.nome
+        return f"{self.nome} ({self.get_tipo_produto_display()})"
 
     def imagem_tag(self):
         try:

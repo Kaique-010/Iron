@@ -61,6 +61,7 @@ class AgendaCreateView(CreateView):
 
         # Definindo a conexão antes de salvar o evento
         set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
         
         evento = form.save(commit=False)
         evento.user = self.request.user

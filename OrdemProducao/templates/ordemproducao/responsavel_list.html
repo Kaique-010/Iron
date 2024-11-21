@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Lista de Responsáveis</h2>
+<a href="{% url 'OrdemProducao:responsavel_create' %}" class="btn btn-primary">Adicionar Responsável</a>
+<ul>
+    {% for responsavel in responsaveis %}
+        <li>{{ responsavel.nome }} - {{ responsavel.cargo }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

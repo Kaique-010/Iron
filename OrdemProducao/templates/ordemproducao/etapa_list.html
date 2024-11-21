@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Lista de Etapas</h2>
+<a href="{% url 'OrdemProducao:etapa_create' %}" class="btn btn-primary">Adicionar Etapa</a>
+<ul>
+    {% for etapa in etapas %}
+        <li>{{ etapa.nome }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
