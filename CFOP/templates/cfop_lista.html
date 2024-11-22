@@ -14,6 +14,7 @@ Lista de CFOPs
     th,
     td {
         text-align: center;
+        color: aliceblue;
     }
 
     .bi-pencil {
@@ -78,21 +79,19 @@ Lista de CFOPs
                 <th>Código</th>
                 <th>Descrição Fiscal</th>
                 <th>Tipo de Operação</th>
-                <th>Natureza da Operação</th>
+                
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
             {% for cfop in cfops %}
             <tr>
-                <td>{{ cfop.codigo }}</td>
-                <td>{{ cfop.descricao }}</td>
-                <td>{{ cfop.tipo_operacao|title }}</td>
-                <td>{{ cfop.natureza_operacao }}</td>
+                <td>{{ cfop.id }}</td>
+                <td>{{ cfop.descricao_fiscal }}</td>
+                <td>{{ cfop.finalidade }}</td>
+               
                 <td>
-                    <a href="{% url 'cfop_detalhe' cfop.id %}" class="btn btn-info btn-sm">
-                        <i class="bi bi-eye"></i>
-                    </a>
+                    
                     <a href="{% url 'cfop_editar' cfop.id %}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil"></i>
                     </a>

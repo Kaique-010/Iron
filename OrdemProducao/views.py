@@ -96,6 +96,8 @@ class OrdemProducaoUpdateView(UpdateView):
 
         return self.form_invalid(form)
     
+    
+    
 class OrdemProducaoDetailView(DetailView):
     model = OrdemProducao
     template_name = 'ordemproducao/ordem_detail.html'
@@ -114,6 +116,7 @@ class OrdemProducaoDetailView(DetailView):
         return context
     
 
+
 class OrdemProducaoDeleteView(DeleteView):
     model = OrdemProducao
     template_name = 'ordemproducao/confirm_delete.html'
@@ -125,6 +128,7 @@ class OrdemProducaoDeleteView(DeleteView):
         
         set_empresa_database(self.request.user.empresa)  
         return super().get_object()
+    
     
 
 class EtapaProducaoView(FormView):
@@ -142,21 +146,39 @@ class EtapaProducaoView(FormView):
     def form_valid(self, formset):
         ordem = get_object_or_404(OrdemProducao, pk=self.kwargs['pk'])
         set_empresa_database(self.request.user.empresa)
+        
         formset.instance = ordem
         formset.save()
         return redirect('OrdemProducao:ordem_detail', pk=ordem.pk)
     
+
+
 
 class EtapaListView(ListView):
     model = Etapa
     template_name = 'ordemproducao/etapa_list.html'
     context_object_name = 'etapas'
 
-class ResponsavelListView(ListView):
-    model = Responsavel
-    template_name = 'ordemproducao/responsavel_list.html'
-    context_object_name = 'responsaveis'
-    
+
+    def dispatch(self, request, *args, **kwargs):
+        
+        if not request.user.is_authenticated:
+            return redirect('login')  
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+       
+        set_empresa_database(self.request.user.empresa)
+        
+        queryset = super().get_queryset()
+        nome = self.request.GET.get('nome')
+
+        if nome:
+            queryset = queryset.filter(nome__icontains=nome)
+
+        return queryset
+
+
 
 class EtapaCreateView(CreateView):
     model = Etapa
@@ -164,8 +186,99 @@ class EtapaCreateView(CreateView):
     template_name = 'ordemproducao/etapa_form.html'
     success_url = reverse_lazy('OrdemProducao:etapa_list')
 
+    
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        
+        if not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.responsavel_atual = self.request.user
+        return super().form_valid(form)
+    
+
+class EtapaUpdateView(UpdateView):
+    model = Etapa
+    fields = ['nome', 'descricao']
+    template_name = 'ordemproducao/etapa_form.html'
+    success_url = reverse_lazy('OrdemProducao:etapa_list')
+    
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        
+        if not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.responsavel_atual = self.request.user
+        return super().form_valid(form)
+    
+    
+    
+class ResponsavelListView(ListView):
+    model = Responsavel
+    template_name = 'ordemproducao/responsavel_list.html'
+    context_object_name = 'responsaveis'
+    
+    
+    
+
 class ResponsavelCreateView(CreateView):
     model = Responsavel
     fields = ['nome', 'cargo']
     template_name = 'ordemproducao/responsavel_form.html'
     success_url = reverse_lazy('OrdemProducao:responsavel_list')
+
+    
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        
+        if not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.responsavel_atual = self.request.user
+        return super().form_valid(form)
+
+
+
+class ResponsavelUpdateView(UpdateView):
+    model = Responsavel
+    fields = ['nome', 'cargo']
+    template_name = 'ordemproducao/responsavel_form.html'
+    success_url = reverse_lazy('OrdemProducao:responsavel_list')
+
+    
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        
+        if not self.request.user.empresa:
+            raise PermissionDenied("Usuário não associado a uma empresa.")
+        
+        set_empresa_database(self.request.user.empresa)
+        form.instance.empresa = self.request.user.empresa
+        form.instance.responsavel_atual = self.request.user
+        return super().form_valid(form)
+
+
+
+class ResponsavelDeleteView(DeleteView):
+    model = Responsavel
+    fields = ['nome', 'cargo']
+    template_name = 'ordemproducao/confirm_delete.html'
+    
+    
+    def get_object(self):
+        if not self.request.user.empresa:
+            return redirect('login') 
+        
+        set_empresa_database(self.request.user.empresa)  
+        return super().get_object()

@@ -1,10 +1,90 @@
 {% extends 'base.html' %}
+
+{% block title %}
+Lista Geral
+{% endblock %}
+
 {% block content %}
-<h2>Lista de Etapas</h2>
-<a href="{% url 'OrdemProducao:etapa_create' %}" class="btn btn-primary">Adicionar Etapa</a>
-<ul>
-    {% for etapa in etapas %}
-        <li>{{ etapa.nome }}</li>
-    {% endfor %}
-</ul>
+<style>
+    h3 {
+        color: rgb(225, 211, 193);
+        text-align: center;
+    }
+
+    th,
+    td {
+        text-align: center;
+        color: aliceblue;
+    }
+
+    .bi-pencil {
+        color: rgb(255, 255, 255);
+    }
+
+    .bi-trash {
+        color: rgb(247, 246, 246);
+    }
+
+    .btn-warning {
+        background-color: darksalmon;
+    }
+
+    .btn-success {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary {
+        background-color: rgb(39, 193, 199);
+        color: rgb(255, 255, 255);
+    }
+</style>
+
+
+<!-- Lista de Etapas -->
+<div class="card mt-5">
+    <center>
+        <h3>Lista de Etapas</h3>
+    </center>
+</div>
+
+<div class="container-fluid mb-4">
+    <a href="{% url 'OrdemProducao:etapa_create' %}" class="btn btn-primary float-end">
+        <i class="bi bi-plus"></i> Adicionar Etapa
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>Nome da Etapa</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for etapa in etapas %}
+            <tr>
+                <td>{{ etapa.nome }}</td>
+                <td>
+                    <a href="{% url 'OrdemProducao:etapa_edit' etapa.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'OrdemProducao:etapa_delete' etapa.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">Nenhuma etapa cadastrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% include 'parcials/pagination.html' %}
 {% endblock %}
