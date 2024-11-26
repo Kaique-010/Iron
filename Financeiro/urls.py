@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-    ContaAPagarListView, ContaAPagarDetailView, ContaAPagarCreateView, ContaAPagarUpdateView, ContaAPagarDeleteView,
-    ContaAReceberListView, ContaAReceberDetailView, ContaAReceberCreateView, ContaAReceberUpdateView, ContaAReceberDeleteView, fluxo_caixa, dash,exportar_contaapagar_excel, exportar_contaareceber_excel
+    AtualizarValorPagoView, ContaAPagarListView, ContaAPagarDetailView, ContaAPagarCreateView, ContaAPagarUpdateView, ContaAPagarDeleteView,
+    ContaAReceberListView, ContaAReceberDetailView, ContaAReceberCreateView, ContaAReceberUpdateView, ContaAReceberDeleteView, EditarParcelaView, ExcluirParcelaView, ParcelasListView, fluxo_caixa, dash,exportar_contaapagar_excel, exportar_contaareceber_excel, GerarParcelasView, ParcelasListView
 )
 from Financeiro.views import (
     FormaPagamentoListView, FormaPagamentoCreateView, FormaPagamentoUpdateView, FormaPagamentoDeleteView,
@@ -43,4 +43,10 @@ urlpatterns = [
     path('categorias/novo/', CategoriaCreateView.as_view(), name='categorias_create'),
     path('categorias/editar/<int:pk>/', CategoriaUpdateView.as_view(), name='categorias_update'),
     path('categorias/excluir/<int:pk>/', CategoriaDeleteView.as_view(), name='categorias_confirm_delete'),
+    
+    path("gerar-parcelas/", GerarParcelasView.as_view(), name="gerar_parcelas"),
+    path("parcelas/", ParcelasListView.as_view(), name="parcelas_geradas"),
+    path("atualizar-valor-pago/", AtualizarValorPagoView.as_view(), name="atualizar_valor_pago"),
+    path('excluir/<int:pk>/', ExcluirParcelaView.as_view(), name='excluir_parcela'),
+     path('editar/<int:pk>/', EditarParcelaView.as_view(), name='editar_parcela'),
 ]

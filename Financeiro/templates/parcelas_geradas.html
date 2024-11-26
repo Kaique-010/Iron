@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Lista de Parcelas Geradas
+{% endblock %}
+
+{% block content %}
+<style>
+  h3 {
+      color: rgb(225, 211, 193);
+      text-align: center;
+  }
+
+  th,
+  td {
+      text-align: center;
+  }
+
+  .bi-pencil {
+      color: rgb(255, 255, 255);
+  }
+
+  .bi-trash {
+      color: rgb(247, 246, 246);
+  }
+
+  .bi-eye {
+      color: azure;
+  }
+
+  .btn-warning {
+      background-color: darksalmon;
+  }
+
+  .btn-success {
+      background-color: rgb(39, 193, 199);
+      color: rgb(255, 255, 255);
+  }
+
+  .btn-primary {
+      background-color: rgb(39, 193, 199);
+      color: rgb(255, 255, 255);
+  }
+</style>
+
+<div class="container-fluid"></div>
+<div class="card">
+  <h3>Lista de Parcelas Geradas</h3>
+</div>
+
+<div class="container-fluid"></div>
+<div class="col md-4">
+  <div class="row mb-4"></div>
+  <a href="{% url 'gerar_parcelas' %}" class="btn btn-success float-end">
+    <i class="bi bi-plus"></i> Gerar Novas Parcelas
+  </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <form method="get" action="{% url 'parcelas_geradas' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="descricao" placeholder="Descrição"
+                       value="{{ request.GET.descricao }}">
+                <button class="btn btn-primary" type="submit">Pesquisar
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-dark table-bordered">
+    <thead>
+        <tr>
+            <th>Documento</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Vencimento</th>
+            <th>Descrição</th>
+            <th>Responsável</th>
+            <th>Valor Pago</th>
+            <th>Pagamento Parcial</th>
+            <th>Pagamento Total</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for parcela in parcelas_geradas %}
+        <tr>
+            <td>{{ parcela.documento }}</td>
+            <td>{{ parcela.tipo }}</td>
+            <td>R$ {{ parcela.valor }}</td>
+            <td>{{ parcela.vencimento_inicial }}</td>
+            <td>{{ parcela.descricao }}</td>
+            <td>{{ parcela.responsavel }}</td>
+            <td>
+                <input type="number" step="0.01" value="{{ parcela.valor_pago }}" 
+                       class="valor-pago-input" data-id="{{ parcela.id }}">
+            </td>
+            <td>
+                <input type="checkbox" disabled 
+                       {% if parcela.pagamento_parcial %}checked{% endif %}>
+            </td>
+            <td>
+                <input type="checkbox" disabled 
+                       {% if parcela.pagamento_total %}checked{% endif %}>
+            </td>
+            <td>
+                <a href="{% url 'editar_parcela' parcela.id %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'excluir_parcela' parcela.id %}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10">Nenhuma parcela gerada encontrada.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% include 'parcials/pagination.html' %}
+
+<script>
+document.querySelectorAll('.valor-pago-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const parcelaId = this.dataset.id;
+        const valorPago = parseFloat(this.value);
+
+        fetch("{% url 'atualizar_valor_pago' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ parcela_id: parcelaId, valor_pago: valorPago })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Valor pago atualizado com sucesso!");
+                location.reload();
+            } else {
+                alert("Erro: " + data.message);
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

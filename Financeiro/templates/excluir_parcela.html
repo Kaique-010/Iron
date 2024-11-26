@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Tem certeza de que deseja excluir esta parcela?</h2>
+    <p>Esta ação não pode ser desfeita.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        <a href="{% url 'parcelas_geradas' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

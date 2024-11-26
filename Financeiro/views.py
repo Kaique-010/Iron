@@ -1,15 +1,24 @@
 from io import BytesIO
 from django.db import IntegrityError, connection, connections
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.http import JsonResponse
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic.edit import FormView
 import openpyxl
-from .models import ContaAPagar, ContaAReceber, FormasPagamento, FormasRecebimento, Categorias
-from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm, CategoriaForm, FormasPagamentoForm, FormasRecebimentoForm
+from .models import ContaAPagar, ContaAReceber, FormasPagamento, FormasRecebimento, Categorias, GerarParcela
+from .forms import ContaAPagarForm, ContaAReceberForm, DateRangeForm, CategoriaForm, FormasPagamentoForm, FormasRecebimentoForm, GerarParcelasForm
 from django.shortcuts import redirect, render
 from django.db.models import Sum
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from django.utils.dateparse import parse_date
 
 
@@ -643,3 +652,119 @@ class CategoriaDeleteView(EmpresaBaseView, DeleteView):
 
 
 
+
+
+class GerarParcelasView(EmpresaBaseView, FormView):
+    template_name = "gerar_parcelas.html"
+    form_class = GerarParcelasForm
+    success_url = "/parcelas/"
+
+    def form_valid(self, form):
+        # Configurar o banco de dados com base na empresa
+        self.set_empresa()
+
+        # Verificar se o usuário tem empresa associada
+        if not self.request.user.empresa:
+            messages.error(self.request, "Usuário não está associado a nenhuma empresa.")
+            return self.form_invalid(form)
+
+        # Obter os dados do formulário
+        vencimento_inicial = form.cleaned_data["vencimento_inicial"]
+        valor_total = form.cleaned_data["valor"]
+        total_parcelas = form.cleaned_data["total_parcelas"]
+        tipo = form.cleaned_data["tipo"]
+        documento = form.cleaned_data["documento"]
+        descricao = form.cleaned_data["descricao"]
+        quitacao = form.cleaned_data["quitacao"]
+        responsavel = form.cleaned_data["responsavel"]
+        pagamento_total = form.cleaned_data["pagamento_total"]
+        pagamento_parcial = form.cleaned_data["pagamento_parcial"]
+
+        # Calcular o valor de cada parcela
+        valor_parcela = round(valor_total / total_parcelas, 2)
+        diferenca = round(valor_total - (valor_parcela * total_parcelas), 2)
+
+        # Gerar parcelas
+        data_atual = datetime.strptime(str(vencimento_inicial), "%Y-%m-%d")
+
+        for i in range(1, total_parcelas + 1):
+            data_vencimento = data_atual + timedelta(days=(i - 1) * 30)
+            valor_atual = valor_parcela + (diferenca if i == total_parcelas else 0)
+
+            GerarParcela.objects.create(
+                valor=valor_atual,
+                vencimento_inicial=data_vencimento,
+                tipo=tipo,
+                documento=documento,
+                total_parcelas=total_parcelas,
+                descricao=descricao,
+                quitacao=quitacao,
+                responsavel=responsavel,
+                pagamento_total=pagamento_total,
+                pagamento_parcial=pagamento_parcial,
+                empresa=self.request.user.empresa,  
+            )
+
+        # Redirecionar para a lista de parcelas
+        return HttpResponseRedirect(reverse("parcelas_geradas"))
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AtualizarValorPagoView(EmpresaBaseView, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            parcela_id = data.get("parcela_id")
+            valor_pago = data.get("valor_pago")
+
+            parcela = GerarParcela.objects.get(id=parcela_id)
+            parcela.valor_pago = valor_pago
+            parcela.pagamento_total = valor_pago == parcela.valor
+            parcela.pagamento_parcial = 0 < valor_pago < parcela.valor
+            parcela.save()
+
+            return JsonResponse({"success": True, "message": "Valor pago atualizado com sucesso."})
+        except GerarParcela.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Parcela não encontrada."}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+
+    
+class ParcelasListView(EmpresaBaseView, ListView):
+        
+    model = GerarParcela
+    template_name = 'parcelas_geradas.html'
+    context_object_name = 'parcelas_geradas'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.set_empresa()  
+        queryset = super().get_queryset()
+        descricao = self.request.GET.get('descricao')
+        
+        if descricao:
+            queryset = queryset.filter(descricao__icontains=descricao)
+        
+        # Depuração: Verifique o queryset
+        print(queryset)  # Adicione esta linha para ver o resultado no terminal ou console de debug.
+        
+        return queryset
+
+
+class EditarParcelaView(UpdateView):
+    model = GerarParcela
+    form_class = GerarParcelasForm 
+    template_name = 'editar_parcela.html'
+    context_object_name = 'parcela'
+
+    # Redirecionar para a lista de parcelas após a edição
+    def get_success_url(self):
+        return reverse_lazy('parcelas_list')
+    
+
+
+class ExcluirParcelaView(DeleteView):
+    model = GerarParcela
+    template_name = 'excluir_parcela.html'  
+    context_object_name = 'parcela'
+    success_url = reverse_lazy('parcelas_list')

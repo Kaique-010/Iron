@@ -1,9 +1,11 @@
 import uuid
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from Pessoas.models import Pessoas
 from app import settings
 from Empresas.models import Empresa
+from django.utils.translation import gettext_lazy as _
 
 
 class EmpresaManager(models.Manager):
@@ -131,3 +133,30 @@ class ContaAReceber(Base):
         return self.descricao
     
 
+
+class GerarParcela(Base):
+    
+    class TipoParcela(models.TextChoices):
+        PAGAR = "pagar", _("Pagar")
+        RECEBER = "receber", _("Receber")
+
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    vencimento_inicial = models.DateField()
+    tipo = models.CharField(max_length=10, choices=TipoParcela.choices)
+    documento = models.PositiveIntegerField("Nº do documento")
+    total_parcelas = models.PositiveIntegerField()
+    descricao = models.CharField(max_length=255, blank=True, null=True)
+    quitacao = models.ForeignKey(FormasRecebimento, on_delete=models.SET_NULL, null=True, blank=True)
+    responsavel = models.ForeignKey(Pessoas, on_delete=models.CASCADE, related_name='gerarparcela')
+    pagamento_total = models.BooleanField(default=False)
+    pagamento_parcial = models.BooleanField(default=False)
+    valor_pago = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    class Meta:
+        verbose_name = 'Gerar Parcela'
+        verbose_name_plural = 'Gerar Parcelas'
+        ordering = ['criado', 'id']
+        db_table = 'gerarparcelas'
+
+    def __str__(self):
+        return f"Parcela {self.documento}/{self.total_parcelas} - {self.tipo} - R$ {self.valor:.2f}"

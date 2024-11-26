@@ -1,5 +1,6 @@
 from django import forms
 from .models import ContaAPagar, ContaAReceber, FormasPagamento, FormasRecebimento, Categorias
+from .models import GerarParcela
 
 class ContaAPagarForm(forms.ModelForm):
     class Meta:
@@ -100,3 +101,35 @@ class FormasPagamentoForm(forms.ModelForm):
         if FormasPagamento.objects.filter(descricao=descricao).exists():
             raise forms.ValidationError("Esta forma de pagamento já existe.")
         return descricao
+
+
+
+class GerarParcelasForm(forms.ModelForm):
+    class Meta:
+        model = GerarParcela
+        fields = [
+            "valor",
+            "vencimento_inicial",
+            "tipo",
+            "documento",
+            "total_parcelas",
+            "descricao",
+            "quitacao",
+            "responsavel",
+            "pagamento_total",
+            "pagamento_parcial",
+            "valor_pago"
+        ]
+        widgets = {
+            "valor": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Valor total"}),
+            "vencimento_inicial": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "tipo": forms.Select(attrs={"class": "form-control"}),
+            "documento": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Número do documento"}),
+            "total_parcelas": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Total de parcelas"}),
+            "descricao": forms.TextInput(attrs={"class": "form-control", "placeholder": "Descrição (opcional)"}),
+            "quitacao": forms.Select(attrs={"class": "form-control"}),
+            "responsavel": forms.Select(attrs={"class": "form-control"}),
+            "pagamento_total": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "pagamento_parcial": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "valor_pago": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Valor Pago"}),
+        }

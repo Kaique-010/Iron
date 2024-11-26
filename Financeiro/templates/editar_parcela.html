@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Editar Parcela</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Salvar alterações</button>
+    </form>
+    <a href="{% url 'parcelas_geradas' %}" class="btn btn-secondary">Cancelar</a>
+{% endblock %}
