@@ -57,6 +57,17 @@
     </div>
   </div>
 
+  {% if produtos_baixo_estoque %}
+    <div class="alert alert-warning">
+        <strong>Aviso:</strong> Os seguintes produtos estão com estoque baixo:
+        <ul>
+            {% for produto in produtos_baixo_estoque %}
+                <li>{{ produto.nome }} - Quantidade: {{ produto.quantidade }} (Estoque mínimo: {{ produto.estoque_minimo }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
   {% if mostrar_modal %}
   <div class="modal fade" id="eventosModal" tabindex="-1" aria-labelledby="eventosModalLabel" aria-hidden="true">
     <div class="modal-dialog">

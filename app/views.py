@@ -146,13 +146,16 @@ class HomeView(View):
             return redirect('login')
         
         usuario_nome = request.session.get('usuario_nome', 'Usuário não encontrado')
-        empresa_nome = request.session.get('empresa_name', 'Empresa não definida')  
+        empresa_nome = request.session.get('empresa_name', 'Empresa não definida')
+        produtos = Produtos.objects.all()  
+        produtos_baixo_estoque = [produto for produto in produtos if produto.estoque_baixo]
         
         context = {
             'produtos_metricas': metricas,
             'mostrar_modal': True,
             'usuario_nome': usuario_nome,
             'empresa_nome': empresa_nome,
+            'produtos_baixo_estoque': produtos_baixo_estoque,
         }
         return render(request, 'home.html', context)
 

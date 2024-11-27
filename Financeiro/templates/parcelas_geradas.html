@@ -7,73 +7,99 @@ Lista de Parcelas Geradas
 {% block content %}
 <style>
   h3 {
-      color: rgb(225, 211, 193);
-      text-align: center;
+    color: rgb(225, 211, 193);
+    text-align: center;
+    margin-top: 20px;
   }
 
   th,
   td {
-      text-align: center;
+    text-align: center;
+    vertical-align: middle;
   }
 
-  .bi-pencil {
-      color: rgb(255, 255, 255);
-  }
-
-  .bi-trash {
-      color: rgb(247, 246, 246);
-  }
-
+  .bi-pencil,
+  .bi-trash,
   .bi-eye {
-      color: azure;
+    color: white;
   }
 
   .btn-warning {
-      background-color: darksalmon;
+    background-color: darksalmon;
   }
 
-  .btn-success {
-      background-color: rgb(39, 193, 199);
-      color: rgb(255, 255, 255);
-  }
-
+  .btn-success,
   .btn-primary {
-      background-color: rgb(39, 193, 199);
-      color: rgb(255, 255, 255);
+    background-color: rgb(39, 193, 199);
+    color: white;
+  }
+
+  .container-filtros {
+    margin-top: 5px;
+    padding: 2%;
+    
+  }
+
+  .container-filtros .row > div {
+  margin-bottom: 15px;
+}
+
+  .table-responsive {
+    margin-top: 10px;
   }
 </style>
 
-<div class="container-fluid"></div>
-<div class="card">
-  <h3>Lista de Parcelas Geradas</h3>
-</div>
+<div class="container-fluid">
+  <div class="card">
+    <h3>Lista de Parcelas Geradas</h3>
+  </div>
 
-<div class="container-fluid"></div>
-<div class="col md-4">
-  <div class="row mb-4"></div>
-  <a href="{% url 'gerar_parcelas' %}" class="btn btn-success float-end">
-    <i class="bi bi-plus"></i> Gerar Novas Parcelas
-  </a>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-4">
-        <form method="get" action="{% url 'parcelas_geradas' %}">
-            <div class="input-group">
-                <input type="text" class="form-control" name="descricao" placeholder="Descrição"
-                       value="{{ request.GET.descricao }}">
-                <button class="btn btn-primary" type="submit">Pesquisar
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
-        </form>
+  <div class="row mb-4">
+    <div class="col-md-12 text-end">
+      <a href="{% url 'gerar_parcelas' %}" class="btn btn-success">
+        <i class="bi bi-plus"></i> Gerar Novas Parcelas
+      </a>
     </div>
-</div>
+  </div>
 
-<div class="table-responsive">
-  <table class="table table-striped table-dark table-bordered">
-    <thead>
-        <tr>
+  <div class="container-filtros">
+    <form method="get" action="{% url 'parcelas_geradas' %}">
+      <div class="row">
+        <div class="col-md-6 mb-6">
+            <label for="descricao" class="form-label">Descrição:</label>
+          <input type="text" class="form-control" name="descricao" placeholder="Descrição"
+            value="{{ request.GET.descricao }}">
+        </div>
+        <div class="col-md-6 mb-6">
+            <label for="responsavel" class="form-label">Responsável:</label>
+          <input type="text" class="form-control" name="responsavel" placeholder="Responsável"
+            value="{{ request.GET.responsavel }}">
+        </div>
+        <div class="col-md-6 mb-6">
+          <label for="data_inicial" class="form-label">Data Inicial:</label>
+          <input type="date" class="form-control" id="data_inicial" name="data_inicial"
+            value="{{ request.GET.data_inicial }}">
+        </div>
+        <div class="col-md-6 mb-6">
+          <label for="data_final" class="form-label">Data Final:</label>
+          <input type="date" class="form-control" id="data_final" name="data_final"
+            value="{{ request.GET.data_final }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <button class="btn btn-primary" type="submit">
+            Pesquisar <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-dark table-bordered">
+        <thead>
+          <tr>
             <th>Documento</th>
             <th>Tipo</th>
             <th>Valor</th>
@@ -84,11 +110,11 @@ Lista de Parcelas Geradas
             <th>Pagamento Parcial</th>
             <th>Pagamento Total</th>
             <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for parcela in parcelas_geradas %}
-        <tr>
+          </tr>
+        </thead>
+        <tbody>
+          {% for parcela in parcelas_geradas %}
+          <tr>
             <td>{{ parcela.documento }}</td>
             <td>{{ parcela.tipo }}</td>
             <td>R$ {{ parcela.valor }}</td>
@@ -96,42 +122,52 @@ Lista de Parcelas Geradas
             <td>{{ parcela.descricao }}</td>
             <td>{{ parcela.responsavel }}</td>
             <td>
-                <input type="number" step="0.01" value="{{ parcela.valor_pago }}" 
-                       class="valor-pago-input" data-id="{{ parcela.id }}">
+              <input type="number" class="form-control valor-pago-input" 
+                     data-id="{{ parcela.id }}" 
+                     value="{{ parcela.valor_pago|floatformat:2 }}" 
+                     min="0" step="0.01">
             </td>
+            <td><input type="checkbox" disabled {% if parcela.pagamento_parcial %}checked{% endif %}></td>
+            <td><input type="checkbox" disabled {% if parcela.pagamento_total %}checked{% endif %}></td>
             <td>
-                <input type="checkbox" disabled 
-                       {% if parcela.pagamento_parcial %}checked{% endif %}>
+              <a href="{% url 'editar_parcela' parcela.id %}" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'excluir_parcela' parcela.id %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i>
+              </a>
             </td>
-            <td>
-                <input type="checkbox" disabled 
-                       {% if parcela.pagamento_total %}checked{% endif %}>
-            </td>
-            <td>
-                <a href="{% url 'editar_parcela' parcela.id %}" class="btn btn-warning btn-sm">
-                    <i class="bi bi-pencil"></i>
-                </a>
-                <a href="{% url 'excluir_parcela' parcela.id %}" class="btn btn-danger btn-sm">
-                    <i class="bi bi-trash"></i>
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
+          </tr>
+          {% empty %}
+          <tr>
             <td colspan="10">Nenhuma parcela gerada encontrada.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-  </table>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" class="text-end"><strong>Total de Parcelas:</strong></td>
+            <td>R$ {{ total_valores|floatformat:2 }}</td>
+            <td colspan="7" class="text-start"><strong>Quantidade de Títulos:</strong> {{ total_parcelas }}</td>
+          </tr>
+        </tfoot>
+      </table>
+  </div>
+
+  {% include 'parcials/pagination.html' %}
 </div>
 
-{% include 'parcials/pagination.html' %}
-
 <script>
-document.querySelectorAll('.valor-pago-input').forEach(input => {
-    input.addEventListener('change', function() {
+  document.querySelectorAll('.valor-pago-input').forEach(input => {
+    input.addEventListener('change', function () {
         const parcelaId = this.dataset.id;
         const valorPago = parseFloat(this.value);
+
+        // Validação no lado do cliente
+        if (isNaN(valorPago) || valorPago < 0) {
+            alert("O valor pago deve ser um número válido e maior que zero.");
+            return;
+        }
 
         fetch("{% url 'atualizar_valor_pago' %}", {
             method: "POST",
@@ -144,14 +180,24 @@ document.querySelectorAll('.valor-pago-input').forEach(input => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Valor pago atualizado com sucesso!");
-                location.reload();
+                alert(data.message);
+                // Atualizar os valores na tabela sem recarregar a página
+                const valorPagoCell = this.closest('tr').querySelector('td:nth-child(7)');
+                valorPagoCell.innerHTML = "R$ " + valorPago.toFixed(2);
+                // Atualiza os checkboxes de pagamento total e parcial
+                const pagamentoParcialCell = this.closest('tr').querySelector('td:nth-child(8) input');
+                const pagamentoTotalCell = this.closest('tr').querySelector('td:nth-child(9) input');
+                pagamentoParcialCell.checked = data.pagamento_parcial;
+                pagamentoTotalCell.checked = data.pagamento_total;
             } else {
                 alert("Erro: " + data.message);
             }
+        })
+        .catch(error => {
+            console.error("Erro ao atualizar o valor pago:", error);
+            alert("Ocorreu um erro inesperado.");
         });
     });
 });
 </script>
-
 {% endblock %}

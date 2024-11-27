@@ -162,6 +162,20 @@ Cadastrar Produto
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.estoque_minimo.label_tag }}
+                                {{ form.estoque_minimo }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.estoque_maximo.label_tag }}
+                                {{ form.estoque_maximo }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 {{ form.descricao.label_tag }}

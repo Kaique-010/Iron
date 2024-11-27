@@ -4,7 +4,7 @@ from . import models
 class Produtos(forms.ModelForm):
     class Meta:
         model = models.Produtos
-        fields = ['nome', 'unidade_medida', 'ncm','localidade', 'familia', 'grupo', 'marca', 'tamanho', 'peso', 'quantidade', 'descricao', 'imagem', 'ativo', 'tipo_produto']
+        fields = ['nome', 'unidade_medida', 'ncm','localidade', 'familia', 'grupo', 'marca', 'tamanho', 'peso', 'quantidade', 'descricao', 'imagem', 'ativo', 'tipo_produto', 'estoque_minimo', 'estoque_maximo']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome Produto'}),
             'unidade_medida': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Unidade de medida'}),
@@ -20,6 +20,8 @@ class Produtos(forms.ModelForm):
             'imagem': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'ativo': forms.NullBooleanSelect(),
             'tipo_produto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo Produto'}),
+            'estoque_minimo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Estoque Mínimo'}),
+            'estoque_maximo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Estoque Máximo'}),
         }
 
     def clean_nome(self):

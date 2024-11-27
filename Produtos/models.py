@@ -69,6 +69,8 @@ class Produtos(Base):
     peso = models.DecimalField('Peso (em gramas)', max_digits=6, decimal_places=2, blank=False, null=False)
     quantidade = models.IntegerField(default=0)
     descricao = models.TextField('Descrição', max_length=100, blank=True, null=True)
+    estoque_minimo = models.IntegerField('Estoque Mínimo', default=1) 
+    estoque_maximo = models.IntegerField('Estoque Máximo', default=100)  
 
     class Meta:
         verbose_name = 'Produto'
@@ -87,6 +89,9 @@ class Produtos(Base):
 
     imagem_tag.short_description = 'Imagem'
 
+    @property
+    def estoque_baixo(self):
+        return self.quantidade <= self.estoque_minimo * 1.2
 
 class Precos(models.Model):
     produto = models.ForeignKey(Produtos, on_delete=models.PROTECT, related_name='precos')

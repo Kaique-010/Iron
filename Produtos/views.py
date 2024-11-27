@@ -1,5 +1,8 @@
 from django.db import IntegrityError, connections
+from django.core.mail import send_mail
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+
+from app import settings
 from . import models, forms
 from .models import Produtos
 from django.urls import reverse_lazy
@@ -47,6 +50,9 @@ class ProdutosListView(ListView):
         return context
 
 
+  
+    
+    
 class ProdutosCreateView(CreateView):
     model = models.Produtos
     template_name = 'produtoscriar.html'
@@ -200,3 +206,25 @@ class UnidadesDeleteView(DeleteView):
         
         set_empresa_database(self.request.user.empresa) 
         return super().get_object()
+    
+
+
+def aviso_estoque_baixo():
+    produtos_estoque_baixo = []
+
+    # Verificar se algum produto está com estoque abaixo do mínimo
+    for produto in Produtos.objects.all():
+        if produto.quantidade <= produto.estoque_minimo:
+            produtos_estoque_baixo.append(produto)
+    
+    # Se houver produtos com estoque baixo, enviar o alerta
+    if produtos_estoque_baixo:
+        for produto in produtos_estoque_baixo:
+            # Criar a mensagem do e-mail
+            subject = f'Alerta de Estoque Baixo: {produto.nome}'
+            message = f'O estoque do produto {produto.nome} está abaixo do mínimo estabelecido. Quantidade atual: {produto.quantidade}.'
+            recipient_list = ['responsavel@empresa.com']  # Coloque os e-mails dos responsáveis aqui
+            
+            # Enviar o e-mail
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+

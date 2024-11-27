@@ -1,3 +1,4 @@
+from decimal import Decimal
 from io import BytesIO
 from django.db import IntegrityError, connection, connections
 from django.contrib import messages
@@ -266,7 +267,6 @@ def totaisapagar(request):
 
 
 def fluxo_caixa(request):
-    # Período padrão (últimos 30 dias)
     start_date = date.today() - timedelta(days=30)
     end_date = date.today()
     
@@ -278,16 +278,27 @@ def fluxo_caixa(request):
     else:
         form = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
 
-    # Filtrar contas a receber e a pagar no período
-    entradas = ContaAReceber.objects.filter(
-        data_vencimento__range=[start_date, end_date]
-    ).aggregate(total_entradas=Sum('valor'))['total_entradas'] or 0
+    # Contas a receber e parcelas do tipo "a receber"
+    entradas = (
+        ContaAReceber.objects.filter(data_vencimento__range=[start_date, end_date]).aggregate(total=Sum('valor'))['total'] or 0
+    ) + (
+        GerarParcela.objects.filter(
+            tipo="receber",
+            vencimento_inicial__range=[start_date, end_date]
+        ).aggregate(total=Sum('valor'))['total'] or 0
+    )
 
-    saidas = ContaAPagar.objects.filter(
-        data_vencimento__range=[start_date, end_date]
-    ).aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
+ 
+    saidas = (
+        ContaAPagar.objects.filter(data_vencimento__range=[start_date, end_date]).aggregate(total=Sum('valor'))['total'] or 0
+    ) + (
+        GerarParcela.objects.filter(
+            tipo="pagar",
+            vencimento_inicial__range=[start_date, end_date]
+        ).aggregate(total=Sum('valor'))['total'] or 0
+    )
 
-    saldo_inicial = 0  # Ajuste conforme necessário
+    saldo_inicial = 0
     saldo_final = saldo_inicial + entradas - saidas
 
     context = {
@@ -308,7 +319,6 @@ def dash(request):
     start_date = date.today() - timedelta(days=30)
     end_date = date.today()
 
-    # Verifica se o formulário foi enviado e se as datas são válidas
     if request.method == 'GET' and 'start_date' in request.GET and 'end_date' in request.GET:
         form = DateRangeForm(request.GET)
         if form.is_valid():
@@ -317,19 +327,27 @@ def dash(request):
     else:
         form = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
 
-    # Calcula o total de entradas
-    entradas = ContaAReceber.objects.filter(
-        data_vencimento__range=[start_date, end_date]
-    ).aggregate(total_entradas=Sum('valor'))['total_entradas'] or 0
+    # Contas a receber e parcelas do tipo "a receber"
+    entradas = (
+        ContaAReceber.objects.filter(data_vencimento__range=[start_date, end_date]).aggregate(total=Sum('valor'))['total'] or 0
+    ) + (
+        GerarParcela.objects.filter(
+            tipo="receber",
+            vencimento_inicial__range=[start_date, end_date]
+        ).aggregate(total=Sum('valor'))['total'] or 0
+    )
 
-    # Calcula o total de saídas
-    saidas = ContaAPagar.objects.filter(
-        data_vencimento__range=[start_date, end_date]
-    ).aggregate(total_saidas=Sum('valor'))['total_saidas'] or 0
+    # Contas a pagar e parcelas do tipo "a pagar"
+    saidas = (
+        ContaAPagar.objects.filter(data_vencimento__range=[start_date, end_date]).aggregate(total=Sum('valor'))['total'] or 0
+    ) + (
+        GerarParcela.objects.filter(
+            tipo="pagar",
+            vencimento_inicial__range=[start_date, end_date]
+        ).aggregate(total=Sum('valor'))['total'] or 0
+    )
 
-    saldo_inicial = 1  
-
-       
+    saldo_inicial = 0
     saldo = entradas - saidas
 
     context = {
@@ -341,7 +359,6 @@ def dash(request):
             'saldo': saldo,
             'start_date': start_date,
             'end_date': end_date,
-            
         }
     }
 
@@ -707,48 +724,97 @@ class GerarParcelasView(EmpresaBaseView, FormView):
 
         # Redirecionar para a lista de parcelas
         return HttpResponseRedirect(reverse("parcelas_geradas"))
-
+    
+    
 @method_decorator(csrf_exempt, name='dispatch')
 class AtualizarValorPagoView(EmpresaBaseView, View):
     def post(self, request, *args, **kwargs):
         try:
+            # Obter os dados do corpo da requisição
             data = json.loads(request.body)
             parcela_id = data.get("parcela_id")
             valor_pago = data.get("valor_pago")
 
+            # Verificar se o valor pago é um número válido
+            if not isinstance(valor_pago, (int, float)):
+                return JsonResponse({
+                    "success": False,
+                    "message": "O valor pago deve ser um número válido."
+                }, status=400)
+
+            # Buscar a parcela no banco de dados
             parcela = GerarParcela.objects.get(id=parcela_id)
-            parcela.valor_pago = valor_pago
-            parcela.pagamento_total = valor_pago == parcela.valor
-            parcela.pagamento_parcial = 0 < valor_pago < parcela.valor
+
+            # Validação: impedir valores negativos
+            if valor_pago < 0:
+                return JsonResponse({
+                    "success": False,
+                    "message": "O valor pago não pode ser negativo."
+                }, status=400)
+
+            # Validação: impedir que o valor pago exceda o valor da parcela
+            if valor_pago > parcela.valor:
+                return JsonResponse({
+                    "success": False,
+                    "message": "O valor pago não pode ser maior que o valor total da parcela."
+                }, status=400)
+
+            # Atualizar os campos da parcela
+            parcela.valor_pago = Decimal(valor_pago).quantize(Decimal('0.01'))  # Arredondar para 2 casas decimais
+            parcela.pagamento_total = parcela.valor_pago == parcela.valor
+            parcela.pagamento_parcial = 0 < parcela.valor_pago < parcela.valor
             parcela.save()
 
+            # Retornar resposta de sucesso
             return JsonResponse({"success": True, "message": "Valor pago atualizado com sucesso."})
         except GerarParcela.DoesNotExist:
+            # Caso a parcela não seja encontrada
             return JsonResponse({"success": False, "message": "Parcela não encontrada."}, status=404)
         except Exception as e:
+            # Qualquer outro erro
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
-
     
+from django.db.models import Sum, Count
+
 class ParcelasListView(EmpresaBaseView, ListView):
-        
     model = GerarParcela
     template_name = 'parcelas_geradas.html'
     context_object_name = 'parcelas_geradas'
     paginate_by = 10
 
     def get_queryset(self):
-        self.set_empresa()  
+        self.set_empresa()
         queryset = super().get_queryset()
         descricao = self.request.GET.get('descricao')
-        
+        responsavel = self.request.GET.get('responsavel')
+        data_inicial = self.request.GET.get('data_inicial')
+        data_final = self.request.GET.get('data_final')
+
         if descricao:
             queryset = queryset.filter(descricao__icontains=descricao)
         
-        # Depuração: Verifique o queryset
-        print(queryset)  # Adicione esta linha para ver o resultado no terminal ou console de debug.
-        
+        if responsavel:
+            queryset = queryset.filter(responsavel__nome__icontains=responsavel)
+
+        if data_inicial and data_final:
+            queryset = queryset.filter(vencimento_inicial__range=[data_inicial, data_final])
+
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Calcular o total e a contagem com base no queryset filtrado
+        total_valores = self.get_queryset().aggregate(total=Sum('valor'))['total'] or 0
+        total_parcelas = self.get_queryset().aggregate(quantidade=Count('id'))['quantidade'] or 0
+
+        # Adicionar os valores ao contexto
+        context['total_valores'] = total_valores
+        context['total_parcelas'] = total_parcelas
+
+        return context
+
 
 
 class EditarParcelaView(UpdateView):
