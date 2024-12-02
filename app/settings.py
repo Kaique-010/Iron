@@ -1,6 +1,7 @@
 import pymysql
 from pathlib import Path
 import os
+import tempfile
 
 # Instalação do MySQL
 pymysql.install_as_MySQLdb()
@@ -93,6 +94,7 @@ INSTALLED_APPS = [
     'Empresas',
     'CFOP',
     'OrdemProducao',
+    'weasyprint',
 
 ]
 
@@ -231,3 +233,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  
 SESSION_COOKIE_AGE = 3600  
+
+
+TEMP_DIR = os.path.join(BASE_DIR, 'temp_files')
+os.makedirs(TEMP_DIR, exist_ok=True)
+tempfile.tempdir = TEMP_DIR

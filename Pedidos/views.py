@@ -1,17 +1,24 @@
 from datetime import date, timedelta
 import json
+import os
+from django.conf import settings
 from io import BytesIO
 from django.db import IntegrityError, transaction
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import tempfile
 import openpyxl
+from django.views.generic.edit import FormView
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, DetailView, DeleteView
-from django.forms import inlineformset_factory, modelformset_factory
+from django.forms import inlineformset_factory
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest
 from django.db.models import Sum, Max
 from django.utils.dateparse import parse_date
 from django.utils.timezone import now
-from django.db import IntegrityError, connection, connections
+from django.db import connection, connections
 from collections import namedtuple
 from Financeiro.models import FormasRecebimento
 from Pessoas.models import Pessoas
@@ -91,51 +98,49 @@ class PedidosListView(ListView):
         return context
     
 
-def criar_pedido(request):
-    ItemPedidoFormSet = modelformset_factory(ItemPedido, form=ItemPedidoForm, extra=1, can_delete=True)
+class PedidoCreateView(FormView):
+    template_name = 'pedidoscriar.html' 
+    form_class = PedidoForm  
 
-    if request.method == 'POST':
-        form = PedidoForm(request.POST)
-        formset = ItemPedidoFormSet(request.POST, queryset=ItemPedido.objects.none())
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Cria o formset para o ItemPedido
+        ItemPedidoFormSet = modelformset_factory(ItemPedido, form=ItemPedidoForm, extra=1)
+      
+        if self.request.POST:
+            context['formset'] = ItemPedidoFormSet(self.request.POST)
+        else:
+            context['formset'] = ItemPedidoFormSet(queryset=ItemPedido.objects.none())
+        
+        return context
 
-        if form.is_valid() and formset.is_valid():
-            if not request.user.empresa:
-                raise IntegrityError("Usuário não associado a uma empresa")
-            
-            # Configura o banco de dados com base na empresa do usuário
-            set_empresa_database(request.user.empresa)
-            
-            try:
-                with transaction.atomic():
-                    pedido = form.save()  # Salva o pedido no banco correto
-                    
-                    # Salva os itens do pedido no banco correto
-                    for item_form in formset:
-                        if item_form.cleaned_data and not item_form.cleaned_data.get('DELETE', False):
-                            quantidade = item_form.cleaned_data.get('quantidade', 0)
-                            preco_unitario = item_form.cleaned_data.get('preco_unitario', 0)
-                            ItemPedido.objects.create(
-                                pedido=pedido,
-                                produto=item_form.cleaned_data['produto'],
-                                quantidade=quantidade,
-                                preco_unitario=preco_unitario,
-                                total=quantidade * preco_unitario
-                            )
-                    
-                    return redirect('pedidoslistas')
-            
-            except IntegrityError:
-                form.add_error(None, "Erro ao criar o pedido. Tente novamente.")
+    def form_valid(self, form):
+        # Salva o pedido (associando a empresa do usuário)
+        pedido = form.save(commit=False)
+        pedido.empresa = self.request.user.empresa  # Atribui a empresa do usuário ao pedido
+        pedido.save()  # Agora o pedido é salvo no banco e tem um PK
 
-    else:
-        form = PedidoForm()
-        formset = ItemPedidoFormSet(queryset=ItemPedido.objects.none())
+        # Obtém o formset de ItemPedido
+        formset = modelformset_factory(ItemPedido, form=ItemPedidoForm, extra=1)(self.request.POST)
 
-    context = {
-        'form': form,
-        'formset': formset,
-    }
-    return render(request, 'pedidoscriar.html', context)
+        if formset.is_valid():
+            # Associa cada item ao pedido
+            for item_form in formset:
+                item = item_form.save(commit=False)
+                item.pedido = pedido  # Associa o item ao pedido
+                item.save()  # Salva o item
+
+            # Redireciona para a página de sucesso
+            return redirect('success')  # Você pode mudar 'success' para o nome de URL desejado
+        else:
+            # Caso o formset seja inválido, renderiza a página com o formset e o formulário principal
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+    def form_invalid(self, form):
+        # Caso o formulário principal ou o formset sejam inválidos
+        formset = modelformset_factory(ItemPedido, form=ItemPedidoForm, extra=1)(self.request.POST)
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 def buscar_produtos(request):
     query = request.GET.get('q', '')
@@ -152,13 +157,9 @@ class PedidosUpdateView(UpdateView):
     def get_form(self, form_class=None):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
-        
-        # Configura o banco de dados da empresa
+    
         set_empresa_database(self.request.user.empresa)
-        
-        
-        
-        # Chama o método padrão para obter o formulário
+   
         return super().get_form(form_class)
     
     def get_context_data(self, **kwargs):
@@ -190,9 +191,21 @@ class PedidosDetailView(DetailView):
         if not self.request.user.empresa:
             raise IntegrityError("Usuário não associado a uma empresa")
         
-        set_empresa_database(self.request.user.empresa)  # Configura o banco de dados
+        set_empresa_database(self.request.user.empresa)
         return super().get_object()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pedido = self.object
+
+        # Calcula os totais
+        total_quantidade = sum(item.quantidade for item in pedido.itens.all())
+        total_valor = sum(item.total for item in pedido.itens.all())  # Supondo que item.total seja o subtotal do item
+
+        # Adiciona os totais ao contexto
+        context['total_quantidade'] = total_quantidade
+        context['total_valor'] = total_valor
+        return context
 class PedidosDeleteView(DeleteView):
     model = Pedido
     template_name = 'pedidosexcluir.html'
@@ -467,3 +480,27 @@ def emails(request):
     }
 
     return render(request, 'emails_inativos.html', context)
+
+
+def gerar_pedido_pdf(request, pedido_id):
+    # Busca o pedido no banco de dados
+    try:
+        pedido = Pedido.objects.get(id=pedido_id)
+    except Pedido.DoesNotExist:
+        return HttpResponse("Pedido não encontrado.", status=404)
+
+    # Renderiza o HTML com os dados do pedido
+    html_content = render_to_string('pedido_pdf.html', {'pedido': pedido})
+
+    # Caminho para salvar o PDF no diretório de media
+    pdf_path = os.path.join(settings.MEDIA_ROOT, f'pedidos/pedido_{pedido_id}.pdf')
+    os.makedirs(os.path.dirname(pdf_path), exist_ok=True)  # Cria o diretório se não existir
+
+    # Gera o PDF
+    HTML(string=html_content).write_pdf(target=pdf_path)
+
+    # Retorna o PDF gerado como resposta
+    with open(pdf_path, 'rb') as pdf_file:
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="pedido_{pedido_id}.pdf"'
+        return response

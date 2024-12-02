@@ -99,8 +99,12 @@
               <td>
                 <form
                   method="post"
-                  action="{% url 'marcar_contato_realizado' row.0 %}"
-                >
+                  {% if pedido.id %}
+                      <a href="{% url 'marcar_contato_realizado' pedido.id %}">Marcar como Realizado</a>
+                  {% else %}
+                      <span>Sem ID disponível</span>
+                  {% endif %}
+                
                   {% csrf_token %}
                   <button type="submit" class="btn btn-success">
                     Contactar

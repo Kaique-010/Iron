@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 from .views import pedido_itens,exportar_pedidos_excel, crm, dashboard,buscar_produtos
 
@@ -6,7 +8,7 @@ from .views import pedido_itens,exportar_pedidos_excel, crm, dashboard,buscar_pr
 
 urlpatterns = [
     path('pedidos/lista/', views.PedidosListView.as_view(), name='pedidoslistas'),
-    path('pedidos/criar/', views.criar_pedido, name='criar_pedido'),
+    path('pedidos/criar/', views.PedidoCreateView.as_view(), name='criar_pedido'),
     path('pedidos/<int:pk>/detalhes/', views.PedidosDetailView.as_view(), name='pedidosdetalhe'),
     path('pedidos/<int:pk>/editar/', views.PedidosUpdateView.as_view(), name='pedidoseditar'),
     path('pedidos/<int:pk>/excluir/', views.PedidosDeleteView.as_view(), name='pedidosexcluir'),
@@ -19,6 +21,10 @@ urlpatterns = [
     path('buscar-produtos/', buscar_produtos, name='buscar_produtos'),
     path('enviar-emails-inativos/', views.enviar_emails_inativos, name='enviar_emails_inativos'),
     path('listar-clientes-inativos/', views.clientes_inativos_por_ultima_compra, name='listar_clientes_inativos'),
+    path('pedido/<int:pedido_id>/imprimir/', views.gerar_pedido_pdf, name='imprimir_pedido'),
 
 
 ]
+
+if settings.DEBUG:  # Apenas no modo debug
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
